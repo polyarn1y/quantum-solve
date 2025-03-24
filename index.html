@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Научный калькулятор</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" />
+    <body>
+    <div class="container">
+        <header> 
+            <input id="inputField" type="text" placeholder="Введите выражение, которое хотите вычислить">
+            <button id="solveButton">
+                <span class="material-symbols-outlined">keyboard_return</span>
+                Решить
+            </button>
+        </header>
+        <p id="inputFieldError">Ошибка: </p>
+        <div class="buttons-container">
+            <button class="mathInputButton">
+                <span class="material-symbols-outlined">function</span>
+                МАТЕМАТИЧЕСКИЙ ВВОД
+            </button>
+            <button id="keyboardInputButton" class="keyboardInputButton">
+                <span class="material-symbols-outlined">keyboard_alt</span>
+                Расширенная Клавиатура
+            </button>
+        </div>
+        <div class="keyboard-container" id="keyboardContainer">
+            <div class="keyboard">
+                <button class="keyboard-key">π</button>
+                <button class="keyboard-key">°</button>
+                <button class="keyboard-key">∞</button>
+                <button class="keyboard-key">4</button>
+                <button class="keyboard-key">5</button>
+                <button class="keyboard-key">6</button>
+                <button class="keyboard-key">7</button>
+                <button class="keyboard-key">8</button>
+                <button class="keyboard-key">9</button>
+                <button class="keyboard-key">0</button>
+                <button class="keyboard-key">+</button>
+                <button class="keyboard-key">-</button>
+                <button class="keyboard-key">*</button>
+                <button class="keyboard-key">/</button>
+                <button class="keyboard-key">(</button>
+                <button class="keyboard-key">)</button>
+                <button class="keyboard-key">.</button>
+                <button class="keyboard-key">=</button>
+                <button class="keyboard-key">C</button>
+            </div> 
+        </div>      
+        <div id="error-container" class="error-container">
+            <span>Калькулятор не понимает вашего запроса</span>
+        </div>  
+        <!-- <div class="result-container">
+            <span>Ввод</span>
+
+        </div> -->
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
