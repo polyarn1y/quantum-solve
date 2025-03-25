@@ -1,76 +1,71 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'); */
-@import url('assets/fonts/stylesheet.css');
+@import url('../fonts/stylesheet.css');
+@import url('reset.css');
+@import url('variables.css');
+
 * {
-  margin: 0;
-  padding: 0;
-  font-family: 'Circe';
-  box-sizing: border-box;
+  font-family: var(--main-font);
 }
 
 body {
-  background-color: #15151B;
+  background-color: var(--bg-color);
 }
 
-button {
-  outline: none;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-h1 {
-  color: #fff;
-}
 .container {
   max-width: 800px;
   padding: 150px 50px;
   margin: 0 auto;
 }
 
-header {
+/* Header */
+/* Main section */
+.main {
   display: flex;
   align-items: center;
   gap: 10px;
   justify-content: space-between;
 }
 
-input {
-  outline: none;
+.main__input {
   border: 2px solid transparent;
   padding: 10px 12px;
   border-radius: 6px;
   width: 100%;
   font-size: 16px;
   background-color: #09090B;
-  color: #fff;
-  box-sizing: border-box;
+  color: var(--primary-text-color);
 }
 
-input::placeholder {
-  color: #A1A1AA;
+.main__input::placholder {
+  color: var(--muted-text-color);
 }
 
-input:focus {
-  border: 2px solid #FFF;
+.main__input:focus {
+  border: 2px solid #fff;
 }
 
-#inputFieldError {
-  display: none;
-  margin-top: 10px;
-  color: #bf4545;
-  font-size: 14px;
-}
-
-button {
-  font-size: 16px;
-  color: #18181B;
-  padding: 8px 16px;
-  background-color: #FAFAFA;
-  border-radius: 8px;
-  transition-duration: .15s;
+.main__button {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 16px;
+  color: var(--primary-text-color);
+  padding: 8px 16px;
+  border: 1px solid #D4D4D8;
+  border-radius: 8px;
 }
+
+.main__button:hover {
+  background-color: #F4F4F5;
+  border-color: #A1A1AA;
+  color: #09090B;
+}
+
+.main__button:active {
+  background-color: #E4E4E7;
+  border-color: #71717A;
+}
+
 .buttons-container {
   display: flex;
   align-items: center;
@@ -84,6 +79,7 @@ button {
   text-transform: uppercase;
   font-weight: bold;
   gap: 3px;
+  letter-spacing: 1px;
   font-size: 10px;
   border-radius: 8px;
   background-color: transparent;
@@ -154,6 +150,7 @@ button {
   display: none;
   width: 100%;
   margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   padding: 25px;
   border-radius: 8px;
   color: #A1A1AA;

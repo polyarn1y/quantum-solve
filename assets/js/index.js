@@ -1,9 +1,8 @@
-const inputField = document.getElementById("inputField");
-const solveButton = document.getElementById("solveButton");
-const keyboardButton = document.getElementById("keyboardInputButton");
-const inputFieldError = document.getElementById("inputFieldError");  
-const keyboardContainer = document.getElementById("keyboardContainer");
-const errorContainer = document.getElementById("error-container");
+import { mainInput, solveButton } from "./constants.js";
+// const keyboardButton = document.getElementById("keyboardInputButton");
+// const inputFieldError = document.getElementById("inputFieldError");  
+// const keyboardContainer = document.getElementById("keyboardContainer");
+// const errorContainer = document.getElementById("error-container");
 
 function getInputValue() {
   return inputField.value;
