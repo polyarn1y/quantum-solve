@@ -1,16 +1,10 @@
-import { mainInput, solveButton } from "./constants.js";
-// const keyboardButton = document.getElementById("keyboardInputButton");
-// const inputFieldError = document.getElementById("inputFieldError");  
-// const keyboardContainer = document.getElementById("keyboardContainer");
-// const errorContainer = document.getElementById("error-container");
+import { inputField, solveButton, keyboardButton, keyboardContainer, querySpan, outputSpan, errorContainer } from "./constants.js";
 
-function getInputValue() {
-  return inputField.value;
-}
+
 
 inputField.addEventListener('keypress', (event) => {
   if(event.key === "Enter") {
-    solve(getInputValue());
+      // solve
   }
 })
 

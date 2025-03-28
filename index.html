@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Научный калькулятор</title>
+    <title>QuantumSolve - научный калькулятор</title>
     <link rel="stylesheet" href="assets/css/stylesheet.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap"/>
     <link rel="icon" href="favicon.ico"><!-- 32×32 -->
 <body>
     <div class="container">
         <header class="header">
-            <img class="header__logo" src="assets/images/logo.png" alt="">
+            <img class="header__logo" src="assets/images/logo.svg" alt="">
             <h1 class="header__title">QuantumSolve</h1>
         </header>
         <section class="main">
@@ -20,31 +20,40 @@
                 Решить
             </button>
         </section>
-        <section class="buttons"></section>
-        <div class="buttons">
-            <button class="buttons_math">
+        <section class="toolbar">
+            <button class="toolbar__button toolbar__button--math">
                 <span class="material-symbols-outlined">function</span>
-                МАТЕМАТИЧЕСКИЙ ВВОД
+                Математический ввод
             </button>
-            <button class="buttons_keyboard">
+            <button class="toolbar__button toolbar__button--keyboard">
                 <span class="material-symbols-outlined">keyboard_alt</span>
-                Расширенная Клавиатура
+                Расширенная клавиатура
             </button>
-        </div>
+        </section>
+        <section class="keyboard">
+
+        </section>
         <div class="keyboard-container" id="keyboardContainer">
             <div class="keyboard">
                 <button class="keyboard-key">π</button>
                 <button class="keyboard-key">°</button>
                 <button class="keyboard-key">∞</button>
             </div> 
-        </div>      
-        <div id="error-container">
-        <span>Калькулятор не понимает вашего запроса 😞</span>
-        </div>  
-        <div id="result-container">
-            <span>Ввод</span>
-        </div>
+        </div> 
+        <section class="error">
+            <span>Калькулятор не понимает вашего запроса 😞</span>
+        </section>
+         <section class="result">
+            <div class="result__title">
+                <span>Ввод</span>
+                <span id="querySpan"></p>
+            </div>
+            <div class="result__footer">
+                <span class="result__output">Ответ</span>
+                <span id="outputSpan"></span>
+            </div>
+        </section>
     </div>
-    <script src="assets/js/index.js"></script>
+    <script type="module" src="assets/js/index.js"></script>
 </body>
 </html>
