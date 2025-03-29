@@ -1,19 +1,9 @@
-import { inputField, solveButton, keyboardButton, keyboardContainer, querySpan, outputSpan, errorContainer } from "./constants.js";
+import { inputField, solveButton, keyboardButton, keyboardContainer, querySpan, outputSpan, errorContainer, loader } from "./constants.js";
 import { Complex } from "./complex.js";
+import { addEventListeners } from "./eventLisneters.js";
 
-window.addEventListener("load", () => {
-  document.getElementById("loader").classList.add("hidden");
-});
+addEventListeners();
 
-inputField.addEventListener('keypress', (event) => {
-  if (event.key === "Enter") {
-      solve(inputField.value);
-  }
-})
-
-solveButton.addEventListener('click', () => {
-  solve(inputField.value);
-})
 
 // keyboardButton.addEventListener('click', () => {
 //   keyboardContainer.classList.toggle("active");

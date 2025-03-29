@@ -5,3 +5,4 @@ export const keyboardContainer = document.getElementById("keyboardContainer");
 export const querySpan = document.getElementById("querySpan");
 export const outputSpan = document.getElementById("outputSpan");
 export const errorContainer = document.querySelector(".error");
+export const loader = document.getElementById("loader");
