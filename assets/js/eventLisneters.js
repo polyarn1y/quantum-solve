@@ -8,12 +8,12 @@ export function addEventListeners() {
   
   inputField.addEventListener('keypress', (event) => {
     if (event.key === "Enter") {
-      solve(inputField.value);
+      solve(inputField.value.trim());
     }
   });
   
   solveButton.addEventListener('click', () => {
-    solve(inputField.value);
+    solve(inputField.value.trim());
   })
 
   keyboardButton.addEventListener('click', () => {

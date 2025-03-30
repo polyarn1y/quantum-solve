@@ -80,6 +80,10 @@ export class Complex {
     if (this.imag === 0) {
       return `${this.real}`;
     }
-    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${Math.abs(this.imag)}i`; // Оба числа ненулевые
+    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${Math.abs(this.imag)}i`;
   }
+}
+
+export function parseComplex(expression) {
+  return expression;
 }
