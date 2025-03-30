@@ -71,6 +71,15 @@ export class Complex {
   }
 
   toString() {
-    return `${this.real} ${this.imag >= 0 ? '+' : '-'} ${Math.abs(this.imag)}i`;
+    if (this.real === 0 && this.imag === 0) {
+      return "0";
+    }
+    if (this.real === 0) {
+      return `${this.imag}i`;
+    }
+    if (this.imag === 0) {
+      return `${this.real}`;
+    }
+    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${Math.abs(this.imag)}i`; // Оба числа ненулевые
   }
 }

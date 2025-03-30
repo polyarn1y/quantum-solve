@@ -1,4 +1,5 @@
-import { inputField, solveButton } from "./constants.js";
+import { inputField, solveButton, keyboardButton, keyboardContainer } from "./constants.js";
+import { solve } from "./index.js";
 
 export function addEventListeners() {
   window.addEventListener("load", () => {
@@ -14,4 +15,8 @@ export function addEventListeners() {
   solveButton.addEventListener('click', () => {
     solve(inputField.value);
   })
+
+  keyboardButton.addEventListener('click', () => {
+    keyboardContainer.classList.toggle("active");
+  });
 }

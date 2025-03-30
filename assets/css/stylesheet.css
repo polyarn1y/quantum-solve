@@ -122,7 +122,7 @@ body {
 }
 
 /* Keyboard section */
-.keyboard-container {
+.keyboard {
   margin-top: 10px;
   display: none;
   background-color: #09090B;
@@ -133,17 +133,17 @@ body {
   width: 100%;
 }
 
-.keyboard-container.active {
+.keyboard.active {
   display: flex;
 }
 
-.keyboard {
+.keyboard-container {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
 }
 
-.keyboard-key {
+.keyboard__key {
   background-color: #c0c0cf;
   color: #18181B;
   height: 40px;
@@ -155,7 +155,7 @@ body {
   transition: background-color 0.3s;
 }
 
-.keyboard-key:hover {
+.keyboard__key:hover {
   background-color: #444;
 }
 
