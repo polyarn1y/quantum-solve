@@ -8,7 +8,18 @@ addEventListeners();
 export function solve(expression) {
   try {
     hide(errorContainer);
-    expression = parseComplex(expression);
+    const isComplex = /\d+i/.test(expression) || /\b(?:\d+\s*[-+]\s*\d+i)\b/.test(expression);
+
+    if (isComplex) {
+      expression = parseComplex(expression);
+    } else {
+      expression = expression.replace(/sin\(([^)]+)\)/g, "Math.sin($1)");
+      expression = expression.replace(/cos\(([^)]+)\)/g, "Math.cos($1)");
+      expression = expression.replace(/tan\(([^)]+)\)/g, "Math.tan($1)");
+      expression = expression.replace(/exp\(([^)]+)\)/g, "Math.exp($1)");
+      expression = expression.replace(/log\(([^)]+)\)/g, "Math.log($1)");
+      expression = expression.replace(/sqrt\(([^)]+)\)/g, "Math.sqrt($1)");
+    }
 
     let result = eval(expression);
 
