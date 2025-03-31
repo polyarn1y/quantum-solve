@@ -4,37 +4,41 @@ import { show, hide } from "./domUtils.js";
 import { addEventListeners } from "./eventLisneters.js";
 
 addEventListeners();
-
 export function solve(expression) {
   try {
     hide(errorContainer);
-    const isComplex = /\d+i/.test(expression) || /\b(?:\d+\s*[-+]\s*\d+i)\b/.test(expression);
+    
+    const isComplex = /[i]/.test(expression);
+    let result;
 
     if (isComplex) {
-      expression = parseComplex(expression);
+      result = parseComplex(expression);
     } else {
-      expression = expression.replace(/sin\(([^)]+)\)/g, "Math.sin($1)");
-      expression = expression.replace(/cos\(([^)]+)\)/g, "Math.cos($1)");
-      expression = expression.replace(/tan\(([^)]+)\)/g, "Math.tan($1)");
-      expression = expression.replace(/exp\(([^)]+)\)/g, "Math.exp($1)");
-      expression = expression.replace(/log\(([^)]+)\)/g, "Math.log($1)");
-      expression = expression.replace(/sqrt\(([^)]+)\)/g, "Math.sqrt($1)");
+      expression = expression
+        .replace(/π/g, 'Math.PI')
+        .replace(/∞/g, 'Infinity')
+        .replace(/sin\(([^)]+)\)/g, "Math.sin($1)")
+        .replace(/cos\(([^)]+)\)/g, "Math.cos($1)")
+        .replace(/tan\(([^)]+)\)/g, "Math.tan($1)")
+        .replace(/exp\(([^)]+)\)/g, "Math.exp($1)")
+        .replace(/log\(([^)]+)\)/g, "Math.log($1)")
+        .replace(/sqrt\(([^)]+)\)/g, "Math.sqrt($1)")
+        .replace(/\^/g, '**');
+
+      result = eval(expression);
+      
+      if (isNaN(result) || !isFinite(result)) {
+        throw new Error("Invalid result");
+      }
     }
 
-    let result = eval(expression);
-
-    if (!(result instanceof Complex) && (isNaN(result) || !isFinite(result))) {
-      throw new Error("");
-    }
- 
-    let queryString = inputField.value.trim().toString().replace(/\*/g, 'x');
-
-
+    const queryString = inputField.value.trim().replace(/\*/g, '×');
+    
     querySpan.textContent = queryString;
-    outputSpan.textContent = result;
+    outputSpan.textContent = result instanceof Complex ? result.toString() : result;
 
     show(resultContainer);
-
+    
   } catch (error) {
     show(errorContainer);
     hide(resultContainer);

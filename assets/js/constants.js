@@ -1,5 +1,7 @@
 export const inputField = document.querySelector(".main__input");
 export const solveButton = document.querySelector(".main__button");
+export const mathButton = document.querySelector(".toolbar__button-math");
+export const mathContainer = document.querySelector(".mathInput");
 export const keyboardButton = document.querySelector(".toolbar__button-keyboard");
 export const keyboardContainer = document.querySelector(".keyboard");
 export const querySpan = document.getElementById("querySpan");

@@ -85,6 +85,90 @@ export class Complex {
 }
 
 export function parseComplex(expression) {
+  expression = expression.replace(/\s+/g, '');
+  const terms = splitTerms(expression);
 
-  return expression;
+  if (terms.length === 0) {
+    throw new Error('Empty expression');
+  }
+
+  let result = new Complex(0, 0);
+
+  for (let term of terms) {
+    let coefficient = 1;
+    if (term.startsWith('+')) {
+      term = term.slice(1);
+    } else if (term.startsWith('-')) {
+      coefficient = -1;
+      term = term.slice(1);
+    }
+
+    const parsedTerm = parseTerm(term);
+    result = coefficient === 1 ? result.add(parsedTerm) : result.minus(parsedTerm);
+  }
+
+  return result;
+}
+
+function splitTerms(expression) {
+  const terms = [];
+  let currentTerm = '';
+  let parenCount = 0;
+
+  for (let i = 0; i < expression.length; i++) {
+    const char = expression[i];
+    if (char === '(') parenCount++;
+    if (char === ')') parenCount--;
+    
+    if ((char === '+' || char === '-') && parenCount === 0 && i > 0) {
+      if (currentTerm) terms.push(currentTerm);
+      currentTerm = char;
+    } else {
+      currentTerm += char;
+    }
+  }
+  if (currentTerm) terms.push(currentTerm);
+
+  return terms;
+}
+
+function parseTerm(term) {
+  if (term.startsWith('(') && term.endsWith(')')) {
+    return parseComplex(term.slice(1, -1));
+  }
+  if (term.includes('*') || term.includes('/')) {
+    const parts = term.split(/([*/])/);
+    let result = parseSingleComplex(parts[0]);
+    
+    for (let i = 1; i < parts.length; i += 2) {
+      const operator = parts[i];
+      const nextTerm = parseSingleComplex(parts[i + 1]);
+      result = operator === '*' ? result.multiply(nextTerm) : result.divide(nextTerm);
+    }
+    return result;
+  }
+  return parseSingleComplex(term);
+}
+
+function parseSingleComplex(str) {
+  const complexRegex = /^([-+]?\d*\.?\d*i?|[-+]?\d*\.?\d+)(?:([-+])\s*(\d*\.?\d*)i)?$/i;
+  const match = str.match(complexRegex);
+
+  if (!match) {
+    throw new Error('Не удалось распарсить комплексное число: ' + str);
+  }
+
+  let realPart = 0;
+  let imagPart = 0;
+
+  if (match[1].endsWith('i')) {
+    imagPart = parseFloat(match[1].replace('i', '')) || 0;
+  } else {
+    realPart = parseFloat(match[1]) || 0;
+    if (match[2] && match[3]) {
+      imagPart = parseFloat(match[3]) * (match[2] === '-' ? -1 : 1);
+    }
+  }
+
+  return new Complex(realPart, imagPart);
 }
