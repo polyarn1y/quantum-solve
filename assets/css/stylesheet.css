@@ -244,10 +244,10 @@ body {
 
 @media (max-width: 500px) {
   .header__logo {
-    width: 80px;
+    width: 65px;
   }
   .header__title {
-    font-size: 48px;
+    font-size: 36px;
   }
   .main__input {
     font-size: 11px;
@@ -258,7 +258,7 @@ body {
     padding: 6px 14px;
   }
   .toolbar__button {
-    font-size: 12px;
-    padding: 4px 10x;
+    font-size: 10px;
+    padding: 6px 12px;
   }
 }
