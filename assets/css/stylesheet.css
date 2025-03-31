@@ -241,3 +241,24 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+@media (max-width: 500px) {
+  .header__logo {
+    width: 80px;
+  }
+  .header__title {
+    font-size: 48px;
+  }
+  .main__input {
+    font-size: 11px;
+  }
+  .main__button {
+    font-size: 14px;
+    color: var(--primary-text-color);
+    padding: 6px 14px;
+  }
+  .toolbar__button {
+    font-size: 12px;
+    padding: 4px 10x;
+  }
+}
