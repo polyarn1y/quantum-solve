@@ -27,8 +27,7 @@ body {
 }
 
 .header__logo {
-  width: 100px;
-  height: 100px;
+  width: 80px;
 }
 
 .header__title {
@@ -49,7 +48,8 @@ body {
   padding: 10px 12px;
   border-radius: 6px;
   width: 100%;
-  font-size: 16px;
+  font-size: clamp(12px, 2vw, 16px);
+  text-overflow: ellipsis;
   background-color: #09090B;
   color: var(--primary-text-color);
 }
@@ -242,23 +242,25 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-@media (max-width: 500px) {
+/* Adaptive */
+@media (max-width: 600px) {
+  .container {
+    padding: 100px 30px;
+  }
   .header__logo {
-    width: 65px;
+    width: 50px;
   }
   .header__title {
-    font-size: 36px;
+    font-size: 50px;
   }
-  .main__input {
-    font-size: 11px;
+  .material-symbols-outlined {
+    font-size: 16px !important;
   }
   .main__button {
     font-size: 14px;
-    color: var(--primary-text-color);
-    padding: 6px 14px;
+    padding: 8px 14px;
   }
   .toolbar__button {
-    font-size: 10px;
-    padding: 6px 12px;
+    font-size: 12px;
   }
 }
