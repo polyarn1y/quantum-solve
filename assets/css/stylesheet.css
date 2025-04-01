@@ -120,60 +120,8 @@ body {
 .toolbar__button .material-symbols-outlined {
   font-size: 18px;
 }
-/* Math Input section */
-.mathInput {
-  margin-top: 10px;
-  display: none;
-  background-color: #3F3F46;
-  border-top: 7px solid #52525B;
-  border-bottom: 7px solid #52525B;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  width: 100%;
-}
-
-.mathInput.active {
-  display: flex;
-}
-
-.mathInput__container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-}
-
-.mathInput__key {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  background-color: #c0c0cf;
-  color: #18181B;
-  height: 40px;
-  width: 40px; 
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.mathInput__key:hover {
-  background-color: #444;
-}
-
-.mathInput__key img {
-  width: 25px; 
-  filter: invert(100%);
-  height: 25px;
-  transform: scale(1.5);
-  transform-origin: center;
-}
-
-/* Keyboard section */
-.keyboard {
+/* Math Input. Keyboard section */
+.mathInput, .keyboard {
   margin-top: 10px;
   display: none;
   background-color: #09090B;
@@ -184,32 +132,44 @@ body {
   width: 100%;
 }
 
-.keyboard.active {
+.mathInput.active, .keyboard.active {
   display: flex;
 }
 
-.keyboard-container {
+.mathInput__container, .keyboard-container {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
 }
 
-.keyboard__key {
-  background-color: #c0c0cf;
-  color: #18181B;
+.mathInput__key, .keyboard__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #3F3F46;
   height: 40px;
-  width: 40px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
+  color: #fff;
+  font-size: 18px;
+  width: 40px; 
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s;
 }
 
-.keyboard__key:hover {
-  background-color: #444;
+.mathInput__key:hover, .keyboard__key:hover {
+  background: #52525B;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
+.mathInput__key img {
+  width: 28px;
+  height: 28px;
+  transform: scale(1.5);
+  transform-origin: center;
+}
 /* Error section */
 .error {
   display: none;

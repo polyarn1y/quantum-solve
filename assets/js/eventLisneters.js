@@ -19,11 +19,20 @@ export function addEventListeners() {
   mathButton.addEventListener('click', () => {
     mathButton.classList.toggle("active");
     mathContainer.classList.toggle("active");
+    
+    if (keyboardButton.classList.contains("active")) {
+      keyboardButton.classList.remove("active");
+      keyboardContainer.classList.remove("active");
+    }
   });
-  
 
   keyboardButton.addEventListener('click', () => {
     keyboardContainer.classList.toggle("active");
     keyboardButton.classList.toggle("active");
+    
+    if (mathButton.classList.contains("active")) {
+      mathButton.classList.remove("active");
+      mathContainer.classList.remove("active");
+    }
   });
 }
