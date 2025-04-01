@@ -75,12 +75,13 @@ export class Complex {
       return "0";
     }
     if (this.real === 0) {
-      return `${this.imag}i`;
+      return this.imag === 1 ? "i" : this.imag === -1 ? "-i" : `${this.imag}i`;
     }
     if (this.imag === 0) {
       return `${this.real}`;
     }
-    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${Math.abs(this.imag)}i`;
+    const imagPart = this.imag === 1 ? "i" : this.imag === -1 ? "-i" : `${Math.abs(this.imag)}i`;
+    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${imagPart}`;
   }
 }
 
@@ -167,7 +168,7 @@ function parseSingleComplex(str) {
   if (match[1].endsWith('i')) {
     imagPart = parseFloat(match[1].replace('i', '')) || 1; 
   } else {
-    realPart = parseFloat(match[1]) || 0; // Вещественная часть
+    realPart = parseFloat(match[1]) || 0; 
     if (match[2] && match[3]) {
       imagPart = parseFloat(match[3]) * (match[2] === '-' ? -1 : 1);
     }
