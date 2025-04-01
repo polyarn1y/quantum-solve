@@ -273,6 +273,8 @@ body {
     padding: 8px 14px;
   }
   .toolbar__button {
+    white-space: nowrap;
     font-size: 12px;
+    width: 100%;
   }
 }
