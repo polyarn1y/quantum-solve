@@ -86,15 +86,16 @@ export class Complex {
 
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
-  const terms = splitTerms(expression);
+  const terms = splitTerms(expression); 
 
   if (terms.length === 0) {
-    throw new Error('Empty expression');
+    throw new Error('Пустое выражение');
   }
 
-  let result = new Complex(0, 0);
+  let result = parseTerm(terms[0]); 
 
-  for (let term of terms) {
+  for (let i = 1; i < terms.length; i++) {
+    let term = terms[i];
     let coefficient = 1;
     if (term.startsWith('+')) {
       term = term.slice(1);
@@ -119,7 +120,7 @@ function splitTerms(expression) {
     const char = expression[i];
     if (char === '(') parenCount++;
     if (char === ')') parenCount--;
-    
+
     if ((char === '+' || char === '-') && parenCount === 0 && i > 0) {
       if (currentTerm) terms.push(currentTerm);
       currentTerm = char;
@@ -134,12 +135,13 @@ function splitTerms(expression) {
 
 function parseTerm(term) {
   if (term.startsWith('(') && term.endsWith(')')) {
-    return parseComplex(term.slice(1, -1));
+    return parseComplex(term.slice(1, -1)); 
   }
+
   if (term.includes('*') || term.includes('/')) {
     const parts = term.split(/([*/])/);
     let result = parseSingleComplex(parts[0]);
-    
+
     for (let i = 1; i < parts.length; i += 2) {
       const operator = parts[i];
       const nextTerm = parseSingleComplex(parts[i + 1]);
@@ -147,6 +149,7 @@ function parseTerm(term) {
     }
     return result;
   }
+
   return parseSingleComplex(term);
 }
 
@@ -162,9 +165,9 @@ function parseSingleComplex(str) {
   let imagPart = 0;
 
   if (match[1].endsWith('i')) {
-    imagPart = parseFloat(match[1].replace('i', '')) || 0;
+    imagPart = parseFloat(match[1].replace('i', '')) || 1; 
   } else {
-    realPart = parseFloat(match[1]) || 0;
+    realPart = parseFloat(match[1]) || 0; // Вещественная часть
     if (match[2] && match[3]) {
       imagPart = parseFloat(match[3]) * (match[2] === '-' ? -1 : 1);
     }
