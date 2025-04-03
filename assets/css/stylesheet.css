@@ -50,7 +50,7 @@ body {
 
 .main__input {
   position: relative;
-  display: block;
+  display: block; 
   border: 2px solid transparent;
   padding: 10px 12px;
   border-radius: 6px;
@@ -60,7 +60,7 @@ body {
   background-color: #09090B;
   color: var(--primary-text-color);
   outline: none;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -71,7 +71,7 @@ body {
 
 .main__input-placeholder {
   top: 50%;
-  left: 12px;
+  left: 13px;
   white-space: nowrap;
   transform: translateY(-50%);
   position: absolute;
