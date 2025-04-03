@@ -43,23 +43,46 @@ body {
   justify-content: space-between;
 }
 
+.main__input-wrapper {
+  width: 100%;
+  position: relative;
+}
+
 .main__input {
+  position: relative;
+  display: block;
   border: 2px solid transparent;
   padding: 10px 12px;
   border-radius: 6px;
   width: 100%;
+  min-height: 40px;
   font-size: clamp(12px, 2vw, 16px);
-  text-overflow: ellipsis;
   background-color: #09090B;
   color: var(--primary-text-color);
-}
-
-.main__input::placholder {
-  color: var(--muted-text-color);
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .main__input:focus {
   border: 2px solid #fff;
+}
+
+.main__input-placeholder {
+  top: 50%;
+  left: 12px;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  position: absolute;
+  color: var(--muted-text-color);
+  user-select: none;
+  white-space: nowrap;
+  font-size: clamp(12px, 2vw, 16px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 24px);
+  pointer-events: none !important;
 }
 
 .main__button {

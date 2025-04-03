@@ -1,19 +1,31 @@
-import { inputField, solveButton, keyboardButton, keyboardContainer, mathButton, mathContainer } from "./constants.js";
+import { inputField, solveButton, keyboardButton, keyboardContainer, mathButton, mathContainer, mathKeys, placeholder } from "./constants.js";
 import { solve } from "./index.js";
 
 export function addEventListeners() {
   window.addEventListener("load", () => {
     loader.classList.add("hidden");
   });
-  
+
   inputField.addEventListener('keypress', (event) => {
     if (event.key === "Enter") {
-      solve(inputField.value.trim());
+      event.preventDefault();
+      solve(inputField.textContent.trim());    
     }
   });
-  
+
+  inputField.addEventListener('input', () => {
+    if (inputField.textContent.trim().length > 0) {
+      placeholder.style.display = 'none';
+    } else {
+      placeholder.style.display = 'block';
+    }
+    if (inputField.innerHTML.includes('<br>')) {
+      inputField.innerHTML = inputField.innerHTML.replace(/<br>/gi, '');
+    }
+  })
+
   solveButton.addEventListener('click', () => {
-    solve(inputField.value.trim());
+    solve(inputField.textContent.trim());    
   })
 
   mathButton.addEventListener('click', () => {
@@ -35,4 +47,7 @@ export function addEventListeners() {
       mathContainer.classList.remove("active");
     }
   });
+
+  mathKeys.forEach((key) => {
+  } )
 }
