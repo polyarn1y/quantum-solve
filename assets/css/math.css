@@ -1,0 +1,42 @@
+.fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.numerator, .denominator {
+  min-width: 24px;
+  min-height: 24px;
+  text-align: center;
+  line-height: 24px;
+  background-color: #18181B;
+  caret-color: transparent;
+  display: flex;
+  border-radius: 2px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #6b6b74;
+  color: #fff;
+}
+
+.numerator.active, .denominator.active {
+  background-color: #3F3F46;
+  outline: none;
+  border: 1px dashed #52525B;
+}
+
+.numerator:not(:empty),
+.denominator:not(:empty) {
+  border: none;
+  background-color: transparent;
+}
+
+.line {
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+  background-color: #fff;
+  margin: 2px 0;
+}

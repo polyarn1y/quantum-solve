@@ -1,6 +1,7 @@
 @import url('../fonts/stylesheet.css');
 @import url('reset.css');
 @import url('variables.css');
+@import url('math.css');
 
 * {
   font-family: var(--main-font);

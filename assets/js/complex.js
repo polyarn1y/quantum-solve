@@ -87,14 +87,37 @@ export class Complex {
 
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
-  const terms = splitTerms(expression); 
 
+  if (expression.includes('/')) {
+    const parts = expression.split('/').map(part => {
+      if (part.startsWith('(') && part.endsWith(')')) {
+        return part.slice(1, -1);
+      }
+      return part;
+    });
+    const numerator = parseComplex(parts[0]);
+    const denominator = parseComplex(parts[1]);
+    return numerator.divide(denominator);
+  }
+
+  if (expression.includes('*')) {
+    const parts = expression.split('*').map(part => {
+      if (part.startsWith('(') && part.endsWith(')')) {
+        return part.slice(1, -1);
+      }
+      return part;
+    });
+    const left = parseComplex(parts[0]);
+    const right = parseComplex(parts[1]);
+    return left.multiply(right);
+  }
+
+  const terms = splitTerms(expression);
   if (terms.length === 0) {
     throw new Error('Пустое выражение');
   }
 
-  let result = parseTerm(terms[0]); 
-
+  let result = parseTerm(terms[0]);
   for (let i = 1; i < terms.length; i++) {
     let term = terms[i];
     let coefficient = 1;
@@ -104,12 +127,18 @@ export function parseComplex(expression) {
       coefficient = -1;
       term = term.slice(1);
     }
-
     const parsedTerm = parseTerm(term);
     result = coefficient === 1 ? result.add(parsedTerm) : result.minus(parsedTerm);
   }
 
   return result;
+}
+
+function parseTerm(term) {
+  if (term.startsWith('(') && term.endsWith(')')) {
+    return parseComplex(term.slice(1, -1)); // Recursively parse inside parentheses
+  }
+  return parseSingleComplex(term);
 }
 
 function splitTerms(expression) {
@@ -132,26 +161,6 @@ function splitTerms(expression) {
   if (currentTerm) terms.push(currentTerm);
 
   return terms;
-}
-
-function parseTerm(term) {
-  if (term.startsWith('(') && term.endsWith(')')) {
-    return parseComplex(term.slice(1, -1)); 
-  }
-
-  if (term.includes('*') || term.includes('/')) {
-    const parts = term.split(/([*/])/);
-    let result = parseSingleComplex(parts[0]);
-
-    for (let i = 1; i < parts.length; i += 2) {
-      const operator = parts[i];
-      const nextTerm = parseSingleComplex(parts[i + 1]);
-      result = operator === '*' ? result.multiply(nextTerm) : result.divide(nextTerm);
-    }
-    return result;
-  }
-
-  return parseSingleComplex(term);
 }
 
 function parseSingleComplex(str) {
