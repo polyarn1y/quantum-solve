@@ -50,7 +50,7 @@ export function addGlobalEventListeners() {
   mathKeys.forEach((key) => {
     if (key.dataset.action === "fraction") {
       key.addEventListener('click', () => {
-        insertFraction();
+        // insertFraction();
         hide(placeholder)
       })
     }
