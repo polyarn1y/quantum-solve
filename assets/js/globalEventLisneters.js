@@ -1,7 +1,9 @@
 import { inputField, solveButton, keyboardButton, keyboardContainer, mathButton, mathContainer, mathKeys, placeholder } from "./constants.js";
 import { solve } from "./index.js";
+import { show, hide } from "./domUtils.js";
+import { insertFraction } from "./math.js";
 
-export function addEventListeners() {
+export function addGlobalEventListeners() {
   window.addEventListener("load", () => {
     loader.classList.add("hidden");
   });
@@ -18,9 +20,6 @@ export function addEventListeners() {
       placeholder.style.display = 'none';
     } else {
       placeholder.style.display = 'block';
-    }
-    if (inputField.innerHTML.includes('<br>')) {
-      inputField.innerHTML = inputField.innerHTML.replace(/<br>/gi, '');
     }
   })
 
@@ -49,5 +48,11 @@ export function addEventListeners() {
   });
 
   mathKeys.forEach((key) => {
-  } )
+    if (key.dataset.action === "fraction") {
+      key.addEventListener('click', () => {
+        insertFraction();
+        hide(placeholder)
+      })
+    }
+  });
 }

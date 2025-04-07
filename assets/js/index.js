@@ -1,9 +1,9 @@
 import { querySpan, outputSpan, errorContainer, resultContainer, inputField, placeholder } from "./constants.js";
 import { Complex, parseComplex } from "./complex.js";
 import { show, hide } from "./domUtils.js";
-import { addEventListeners } from "./eventLisneters.js";
+import { addGlobalEventListeners } from "./globalEventLisneters.js";
 
-addEventListeners();
+addGlobalEventListeners();
 export function solve(expression) {
   try {
     hide(errorContainer);

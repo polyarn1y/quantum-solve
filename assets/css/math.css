@@ -1,16 +1,25 @@
+/* Fraction */
 .fraction {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 14px;
+}
+
+.numerator:focus,
+.denominator:focus {
+  outline: none;
+  background-color: #3F3F46;
+  border: 1px dashed #52525B;
 }
 
 .numerator, .denominator {
-  min-width: 24px;
-  min-height: 24px;
+  min-width: 20px;
+  min-height: 20px;
+  box-sizing: content-box;
+  padding: 5px;
   text-align: center;
-  line-height: 24px;
+  line-height: 20px;
   background-color: #18181B;
   caret-color: transparent;
   display: flex;
@@ -21,22 +30,10 @@
   color: #fff;
 }
 
-.numerator.active, .denominator.active {
-  background-color: #3F3F46;
-  outline: none;
-  border: 1px dashed #52525B;
-}
-
-.numerator:not(:empty),
-.denominator:not(:empty) {
-  border: none;
-  background-color: transparent;
-}
-
 .line {
   width: 100%;
   height: 1px;
   pointer-events: none;
   background-color: #fff;
-  margin: 2px 0;
+  margin: 4px 0;
 }
