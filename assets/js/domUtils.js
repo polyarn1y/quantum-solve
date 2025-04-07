@@ -1,5 +1,9 @@
 import { inputField, placeholder } from "./constants.js";
 
+export function toggle(element) {
+  element.classList.toggle("active");
+}
+
 export function show(elem) {
   elem.classList.add("active");
 }

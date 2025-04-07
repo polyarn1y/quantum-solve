@@ -1,12 +1,19 @@
-import { inputField, solveButton, keyboardButton, keyboardContainer, mathButton, mathContainer, mathKeys, placeholder } from "./constants.js";
+import { 
+  inputField, 
+  solveButton, 
+  keyboardButton, 
+  keyboardContainer, 
+  mathButton, 
+  mathContainer, 
+  mathKeys, 
+  placeholder 
+} from "./constants.js";
 import { solve } from "./index.js";
-import { show, hide, updatePlaceholderVisibility } from "./domUtils.js";
+import { toggle, updatePlaceholderVisibility } from "./domUtils.js";
 import { insertFraction } from "./math.js";
 
 export function addGlobalEventListeners() {
-  window.addEventListener("load", () => {
-    loader.remove();
-  });
+  window.addEventListener("load", () => { loader.remove(); });
 
   inputField.addEventListener('keypress', (event) => {
     if (event.key === "Enter") {
@@ -17,7 +24,7 @@ export function addGlobalEventListeners() {
 
   inputField.addEventListener('input', () => {
     updatePlaceholderVisibility();
-  inputField.querySelectorAll('br').forEach(br => br.remove());
+    inputField.querySelectorAll('br').forEach(br => br.remove());
   });
 
   solveButton.addEventListener('click', () => {
@@ -25,22 +32,21 @@ export function addGlobalEventListeners() {
   });
 
   mathButton.addEventListener('click', () => {
-    mathButton.classList.toggle("active");
-    mathContainer.classList.toggle("active");
-    
+    toggle(mathButton);
+    toggle(mathContainer);
     if (keyboardButton.classList.contains("active")) {
-      keyboardButton.classList.remove("active");
-      keyboardContainer.classList.remove("active");
+      toggle(keyboardButton);
+      toggle(keyboardContainer);
     }
   });
 
   keyboardButton.addEventListener('click', () => {
-    keyboardContainer.classList.toggle("active");
-    keyboardButton.classList.toggle("active");
+    toggle(keyboardButton);
+    toggle(keyboardContainer);
     
     if (mathButton.classList.contains("active")) {
-      mathButton.classList.remove("active");
-      mathContainer.classList.remove("active");
+      toggle(mathButton);
+      toggle(mathContainer);
     }
   });
 
