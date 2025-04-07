@@ -99,6 +99,8 @@ export function insertFraction() {
 }
 
 // Удаление дроби
+
+
 inputField.addEventListener('keydown', (e) => {
   const selection = window.getSelection();
   if ((e.key === 'Backspace' || e.key === 'Delete') && selection.rangeCount > 0) {
@@ -133,26 +135,5 @@ inputField.addEventListener('keydown', (e) => {
       e.preventDefault();
       prevNode.querySelector('.denominator').focus(); // Входим в дробь слева
     }
-  }
-});
-
-inputField.addEventListener('keydown', (e) => {
-  const selection = window.getSelection();
-  if ((e.key === 'Backspace' || e.key === 'Delete') && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const startContainer = range.startContainer;
-      const endContainer = range.endContainer;
-
-      if (startContainer.parentNode?.className === 'fraction' || 
-          endContainer.parentNode?.className === 'fraction') {
-          const fraction = startContainer.parentNode.className === 'fraction' 
-              ? startContainer.parentNode 
-              : endContainer.parentNode;
-          
-          if (range.toString().includes(fraction.textContent)) {
-              fraction.remove();
-              e.preventDefault();
-          }
-      }
   }
 });

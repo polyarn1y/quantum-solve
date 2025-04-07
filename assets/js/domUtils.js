@@ -13,6 +13,10 @@ export function hide(elem) {
 }
 
 export function updatePlaceholderVisibility() {
+  if (inputField.querySelector('.fraction')) {
+    placeholder.style.display = 'none';
+    return;
+  }
   if (inputField.textContent.trim().length > 0) {
     placeholder.style.display = 'none';
   } else {
