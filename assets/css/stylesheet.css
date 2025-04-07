@@ -38,12 +38,18 @@ body {
 
 /* Main section */
 .main {
-  position: relative;
   display: flex;
   width: 100%;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
   justify-content: space-between;
+}
+
+.main__input-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
 .main__input {
@@ -58,10 +64,8 @@ body {
   background-color: #09090B;
   color: var(--primary-text-color);
   outline: none;
-  white-space: normal;
   overflow: hidden;
   caret-color: auto !important;
-  text-overflow: ellipsis;
 }
 
 .main__input:focus {
@@ -74,19 +78,18 @@ body {
 
 .main__input-placeholder {
   display: none;
+  position: absolute;
   top: 50%;
   left: 13px;
-  white-space: nowrap;
   transform: translateY(-50%);
-  position: absolute;
   color: var(--muted-text-color);
   user-select: none;
   white-space: nowrap;
   font-size: clamp(12px, 2vw, 16px);
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(100% - 24px);
+  max-width: calc(100% - 26px);
   pointer-events: none !important;
+  text-overflow: ellipsis;
 }
 
 .main__button {
@@ -260,11 +263,6 @@ body {
   align-items: center;
   z-index: 1000;
   transition: opacity 0.3s ease-in-out;
-}
-
-.loader-container.hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .loader {
