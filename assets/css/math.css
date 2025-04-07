@@ -4,6 +4,8 @@
   flex-direction: column;
   align-items: center;
   font-size: 14px;
+  vertical-align: middle;
+  margin: 0 2px;
 }
 
 .numerator:focus,

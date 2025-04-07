@@ -1,7 +1,7 @@
 import { inputField, solveButton, keyboardButton, keyboardContainer, mathButton, mathContainer, mathKeys, placeholder } from "./constants.js";
 import { solve } from "./index.js";
 import { show, hide } from "./domUtils.js";
-// import { insertFraction } from "./math.js";
+import { insertFraction } from "./math.js";
 
 export function addGlobalEventListeners() {
   window.addEventListener("load", () => {
@@ -50,8 +50,8 @@ export function addGlobalEventListeners() {
   mathKeys.forEach((key) => {
     if (key.dataset.action === "fraction") {
       key.addEventListener('click', () => {
-        // insertFraction();
-        hide(placeholder)
+        insertFraction();
+        hide(placeholder);
       })
     }
   });
