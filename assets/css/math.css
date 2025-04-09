@@ -46,8 +46,3 @@
   background-color: transparent;
 }
 
-.numerator:not(:empty):focus,
-.denominator:not(:empty):focus {
-  color: #fff;
-  text-shadow: 0 0 11px #4b72ff, 0 0 15px #4b72ff;
-}
