@@ -6,11 +6,11 @@ import {
   mathButton,
   mathContainer,
   mathKeys,
-  placeholder
 } from "./constants.js";
 import { solve } from "./index.js";
 import { toggle, updatePlaceholderVisibility } from "./domUtils.js";
 import { insertFraction } from "./math/fraction.js";
+import { insertPower } from "./math/power.js"
 import { removeLoader } from './loader.js';
 
 const handleSolve = (expression) => solve(expression.trim());
@@ -49,17 +49,26 @@ const removeBreaks = (element) => {
   element.querySelectorAll('br').forEach(br => br.remove());
 };
 
+const actionHandlers = {
+  fraction: insertFraction,
+  power: insertPower,
+};
+
+const handleMathKeyClick = (action) => {
+  const insertFunction = actionHandlers[action];
+  if (insertFunction) {
+    insertFunction();
+    updatePlaceholderVisibility();
+  } else {
+    console.warn(`No handler found for action: ${action}`);
+  }
+};
 
 const setupMathKeys = () => {
   mathKeys.forEach((key) => {
-      const action = key.dataset.action;
-      if (action === "fraction") {
-          key.addEventListener('click', handleFractionClick);
-      }
+    const action = key.dataset.action;
+    if (action in actionHandlers) {
+      key.addEventListener('click', () => handleMathKeyClick(action));
+    }
   });
-};
-
-const handleFractionClick = () => {
-  insertFraction();
-  updatePlaceholderVisibility();
 };

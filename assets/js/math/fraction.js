@@ -104,3 +104,4 @@ const moveFocus = (target, position) => {
   selection.removeAllRanges();
   selection.addRange(newRange);
 };
+
