@@ -3,9 +3,25 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  font-size: 14px;
+  font-size: 15px;
   vertical-align: middle;
   margin: 0 2px;
+}
+
+.numerator, .denominator {
+  min-width: 15px;
+  min-height: 15px;
+  box-sizing: content-box;
+  padding: 5px;
+  text-align: center;
+  line-height: 15px;
+  background-color: #18181B;
+  display: flex;
+  border-radius: 2px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #6b6b74;
+  color: #fff;
 }
 
 .numerator:focus,
@@ -15,20 +31,16 @@
   border: 1px dashed #52525B;
 }
 
-.numerator, .denominator {
-  min-width: 20px;
-  min-height: 20px;
-  box-sizing: content-box;
-  padding: 5px;
-  text-align: center;
-  line-height: 20px;
-  background-color: #18181B;
-  display: flex;
-  border-radius: 2px;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #6b6b74;
+.numerator:not(:empty),
+.denominator:not(:empty) {
+  border: none;
+  background-color: transparent;
+}
+
+.numerator:not(:empty):focus,
+.denominator:not(:empty):focus {
   color: #fff;
+  text-shadow: 0 0 11px #4b72ff, 0 0 15px #4b72ff;
 }
 
 .line {
