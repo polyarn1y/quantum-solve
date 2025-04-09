@@ -80,7 +80,7 @@ body {
   display: none;
   position: absolute;
   top: 50%;
-  left: 13px;
+  left: 14px;
   transform: translateY(-50%);
   color: var(--muted-text-color);
   user-select: none;

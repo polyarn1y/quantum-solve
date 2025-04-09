@@ -71,19 +71,23 @@ export class Complex {
   }
 
   toString() {
-    if (this.real === 0 && this.imag === 0) {
-      return "0";
-    }
-    if (this.real === 0) {
-      return this.imag === 1 ? "i" : this.imag === -1 ? "-i" : `${this.imag}i`;
-    }
-    if (this.imag === 0) {
-      return `${this.real}`;
-    }
-    const imagPart = this.imag === 1 ? "i" : this.imag === -1 ? "-i" : `${Math.abs(this.imag)}i`;
-    return `${this.real} ${this.imag > 0 ? '+' : '-'} ${imagPart}`;
+    const { real, imag } = this;
+    if (real === 0 && imag === 0) return "0";
+    if (real === 0) return imag === 1 ? "i" : imag === -1 ? "-i" : `${imag}i`;
+    if (imag === 0) return `${real}`;
+    
+    const imagAbs = Math.abs(imag);
+    const imagPart = imagAbs === 1 ? (imag > 0 ? "i" : "-i") : `${imagAbs}i`;
+    return `${real} ${imag > 0 ? '+' : '-'} ${imagPart}`;
   }
 }
+
+const operators = {
+  '/': (a, b) => a.divide(b),
+  '*': (a, b) => a.multiply(b),
+  '+': (a, b) => a.add(b),
+  '-': (a, b) => a.minus(b)
+};
 
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
@@ -136,7 +140,7 @@ export function parseComplex(expression) {
 
 function parseTerm(term) {
   if (term.startsWith('(') && term.endsWith(')')) {
-    return parseComplex(term.slice(1, -1)); // Recursively parse inside parentheses
+    return parseComplex(term.slice(1, -1));
   }
   return parseSingleComplex(term);
 }

@@ -1,25 +1,10 @@
 import { inputField, placeholder } from "./constants.js";
 
-export function toggle(element) {
-  element.classList.toggle("active");
-}
-
-export function show(elem) {
-  elem.classList.add("active");
-}
-
-export function hide(elem) {
-  elem.classList.remove("active");
-}
-
-export function updatePlaceholderVisibility() {
-  if (inputField.querySelector('.fraction')) {
-    placeholder.style.display = 'none';
-    return;
-  }
-  if (inputField.textContent.trim().length > 0) {
-    placeholder.style.display = 'none';
-  } else {
-    placeholder.style.display = 'block';
-  }
-}
+export const toggle = (element) => element.classList.toggle("active");
+export const show = (element) => element.classList.add("active");
+export const hide = (element) => element.classList.remove("active");
+export const updatePlaceholderVisibility = () => {
+  const hasFraction = inputField.querySelector('.fraction');
+  const hasContent = inputField.textContent.trim().length > 0;
+  placeholder.style.display = (hasFraction || hasContent) ? 'none' : 'block';
+};
