@@ -59,6 +59,7 @@ body {
   background-color: #09090B;
   color: var(--primary-text-color);
   outline: none;
+  transition: border 0.3s;
   overflow: hidden;
   caret-color: auto !important;
 }
