@@ -5,7 +5,7 @@
   align-items: center;
   font-size: clamp(12px, 2vw, 16px);
   vertical-align: middle;
-  margin: 0 2px;
+  margin: 0 0.5px;
 }
 
 .numerator, .denominator {
@@ -46,11 +46,11 @@
   background-color: transparent;
 }
 
-/* Exponentiation */
-.exponentiation {
+/* Power */
+.power {
   display: inline-flex;
   vertical-align: middle;
-  margin: 0 2px;
+  margin: 0 0.5px;
 }
 
 .base, .exponent {
@@ -94,6 +94,7 @@
   border: none;
   padding: 0;
   margin: 0;
+  min-width: 8px;
   background-color: transparent;
 }
 

@@ -8,18 +8,23 @@ const FRACTION_TEMPLATE = `
   </span>
 `.trim();
 
-const createFractionElement = () => {
+const createFractionElement = (numeratorText) => {
   const template = document.createElement('span');
   template.innerHTML = FRACTION_TEMPLATE;
   const fractionElement = template.firstChild;
   const numerator = fractionElement.querySelector(".numerator");
   const denominator = fractionElement.querySelector(".denominator");
+
+  if (numeratorText) numerator.textContent = numeratorText
+
   setupFractionEvents(numerator, denominator);
   return fractionElement;
 }
 
-export const insertFraction = () => {
-  const fractionElement = createFractionElement();
+export const insertFraction = (numeratorText) => {
+  const fractionElement = createFractionElement(numeratorText);
+  const numerator = fractionElement.querySelector(".numerator");
+  const denominator = fractionElement.querySelector(".denominator");
   const selection = window.getSelection();
   if (selection.rangeCount && inputField.contains(selection.getRangeAt(0).startContainer)) {
     const range = selection.getRangeAt(0);
@@ -36,6 +41,11 @@ export const insertFraction = () => {
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);   
+  }
+  if (numeratorText) {
+    denominator.focus(); 
+  } else {
+    numerator.focus();
   }
 }
 

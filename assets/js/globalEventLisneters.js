@@ -13,13 +13,29 @@ import { insertFraction } from "./math/fraction.js";
 import { insertPower } from "./math/power.js"
 import { removeLoader } from './loader.js';
 
+const originalStyles = {
+  inputFieldBorder: inputField.style.border,
+  solveButtonBackground: solveButton.style.background,
+};
+
 const handleSolve = (expression) => solve(expression.trim());
 const toggleWithExclusive = (button, container, otherButton, otherContainer) => {
+  const isMathButton = button === mathButton;
+  const willBeActive = !button.classList.contains("active");
   toggle(button);
   toggle(container);
+  if (isMathButton) {
+    if (willBeActive) {
+      inputField.style.border = "2px solid #3B82F6";
+      solveButton.style.background = "#3B82F6";
+    } else {
+      inputField.style.border = originalStyles.inputFieldBorder;
+      solveButton.style.background = originalStyles.solveButtonBackground;
+    }
+  }
   if (otherButton.classList.contains("active")) {
-      toggle(otherButton);
-      toggle(otherContainer);
+    toggle(otherButton);
+    toggle(otherContainer);
   }
 };
 
@@ -30,6 +46,66 @@ export const addGlobalEventListeners = () => {
           event.preventDefault();
           handleSolve(inputField.textContent);
       }
+      if (event.key === '/' && mathButton.classList.contains('active')) {
+        event.preventDefault();
+        const selection = window.getSelection();
+        let numeratorText = '';
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          const startContainer = range.startContainer;
+          const startOffset = range.startOffset;
+          if (startContainer.nodeType === Node.TEXT_NODE) {
+            numeratorText = startContainer.textContent.slice(0, startOffset).trim();
+            startContainer.textContent = startContainer.textContent.slice(startOffset);
+          } else if (startContainer === inputField || startContainer.parentNode === inputField) {
+            const nodes = Array.from(inputField.childNodes);
+            const currentNodeIndex = nodes.findIndex(node => 
+              node === startContainer || node.contains(startContainer)
+            );
+            if (currentNodeIndex > 0) {
+              const prevNode = nodes[currentNodeIndex - 1];
+              if (prevNode.nodeType === Node.TEXT_NODE) {
+                numeratorText = prevNode.textContent.trim();
+                prevNode.remove();
+              }
+            }
+          }
+        }
+        insertFraction(numeratorText);
+        updatePlaceholderVisibility();
+      }
+      
+      if (event.key === '^' && mathButton.classList.contains('active')) {
+        event.preventDefault();
+        const selection = window.getSelection();
+        let baseText = '';
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          const startContainer = range.startContainer;
+          const startOffset = range.startOffset;
+  
+          if (startContainer.nodeType === Node.TEXT_NODE) {
+            baseText = startContainer.textContent.slice(0, startOffset).trim();
+            startContainer.textContent = startContainer.textContent.slice(startOffset);
+          } else if (startContainer === inputField || startContainer.parentNode === inputField) {
+            const nodes = Array.from(inputField.childNodes);
+            const currentNodeIndex = nodes.findIndex(node => 
+              node === startContainer || node.contains(startContainer)
+            );
+            if (currentNodeIndex > 0) {
+              const prevNode = nodes[currentNodeIndex - 1];
+              if (prevNode.nodeType === Node.TEXT_NODE) {
+                baseText = prevNode.textContent.trim();
+                prevNode.remove();
+              }
+            }
+          }
+        }
+  
+        insertPower(baseText);
+        updatePlaceholderVisibility();
+      }
+
   });
   inputField.addEventListener('input', () => {
       updatePlaceholderVisibility();

@@ -38,18 +38,13 @@ body {
 
 /* Main section */
 .main {
+  position: relative;
   display: flex;
   width: 100%;
   align-items: center;
   gap: 10px;
   white-space: nowrap;
   justify-content: space-between;
-}
-
-.main__input-wrapper {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
 }
 
 .main__input {
@@ -92,26 +87,31 @@ body {
   text-overflow: ellipsis;
 }
 
-.main__button {
+.main__equals-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #3F3F46;
+  color: var(--primary-text-color);
+  border: none;
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  font-size: 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 16px;
-  color: var(--primary-text-color);
-  padding: 8px 16px;
-  border: 1px solid #D4D4D8;
-  border-radius: 8px;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.main__button:hover {
-  background-color: #F4F4F5;
-  border-color: #A1A1AA;
-  color: #09090B;
+.main__equals-button:hover {
+  background-color: #52525B;
 }
 
-.main__button:active {
-  background-color: #E4E4E7;
-  border-color: #71717A;
+.main__equals-button:active {
+  background-color: #71717A;
 }
 
 /* Toolbar section */
@@ -160,6 +160,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 10;
   width: 100%;
+  /* border: #10B981 2px solid; */
 }
 
 .mathInput.active, .keyboard.active {
