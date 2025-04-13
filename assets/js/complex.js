@@ -40,7 +40,12 @@ export class Complex {
   pow(n) {
     const r = this.modulus() ** n;
     const theta = this.argument() * n;
-    return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+    const real = r * Math.cos(theta);
+    const imag = r * Math.sin(theta);
+    return new Complex(
+      Math.abs(real) < 1e-15 ? 0 : real,
+      Math.abs(imag) < 1e-15 ? 0 : imag
+    );
   }
 
   exp() {
@@ -92,7 +97,6 @@ const operators = {
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
 
-  // Сначала обрабатываем скобки
   if (expression.startsWith('(') && expression.endsWith(')')) {
     let parenCount = 0;
     let isNested = false;
@@ -106,6 +110,23 @@ export function parseComplex(expression) {
     }
     if (!isNested && parenCount === 0) {
       return parseComplex(expression.slice(1, -1));
+    }
+  }
+
+  for (let op of ['^']) {
+    let parenCount = 0;
+    for (let i = 0; i < expression.length; i++) {
+      if (expression[i] === '(') parenCount++;
+      if (expression[i] === ')') parenCount--;
+      if (expression[i] === op && parenCount === 0) {
+        const parts = [expression.slice(0, i), expression.slice(i + 1)];
+        const base = parseComplex(parts[0]);
+        const exponent = parseFloat(parts[1])
+        if (isNaN(exponent)) {
+          throw new Error('Invalid exponent: ' + parts[1]);
+        }
+        return base.pow(exponent);
+      }
     }
   }
 
@@ -123,7 +144,6 @@ export function parseComplex(expression) {
     }
   }
 
-  // Разбиваем по + и -
   const terms = splitTerms(expression);
   if (terms.length === 0) {
     throw new Error('Пустое выражение');
