@@ -160,7 +160,6 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 10;
   width: 100%;
-  /* border: #10B981 2px solid; */
 }
 
 .mathInput.active, .keyboard.active {

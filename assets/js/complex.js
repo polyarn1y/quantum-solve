@@ -92,30 +92,38 @@ const operators = {
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
 
-  if (expression.includes('/')) {
-    const parts = expression.split('/').map(part => {
-      if (part.startsWith('(') && part.endsWith(')')) {
-        return part.slice(1, -1);
+  // Сначала обрабатываем скобки
+  if (expression.startsWith('(') && expression.endsWith(')')) {
+    let parenCount = 0;
+    let isNested = false;
+    for (let i = 1; i < expression.length - 1; i++) {
+      if (expression[i] === '(') parenCount++;
+      if (expression[i] === ')') parenCount--;
+      if (parenCount < 0) {
+        isNested = true;
+        break;
       }
-      return part;
-    });
-    const numerator = parseComplex(parts[0]);
-    const denominator = parseComplex(parts[1]);
-    return numerator.divide(denominator);
+    }
+    if (!isNested && parenCount === 0) {
+      return parseComplex(expression.slice(1, -1));
+    }
   }
 
-  if (expression.includes('*')) {
-    const parts = expression.split('*').map(part => {
-      if (part.startsWith('(') && part.endsWith(')')) {
-        return part.slice(1, -1);
+  for (let op of ['/', '*']) {
+    let parenCount = 0;
+    for (let i = 0; i < expression.length; i++) {
+      if (expression[i] === '(') parenCount++;
+      if (expression[i] === ')') parenCount--;
+      if (expression[i] === op && parenCount === 0) {
+        const parts = [expression.slice(0, i), expression.slice(i + 1)];
+        const left = parseComplex(parts[0]);
+        const right = parseComplex(parts[1]);
+        return operators[op](left, right);
       }
-      return part;
-    });
-    const left = parseComplex(parts[0]);
-    const right = parseComplex(parts[1]);
-    return left.multiply(right);
+    }
   }
 
+  // Разбиваем по + и -
   const terms = splitTerms(expression);
   if (terms.length === 0) {
     throw new Error('Пустое выражение');
@@ -140,7 +148,19 @@ export function parseComplex(expression) {
 
 function parseTerm(term) {
   if (term.startsWith('(') && term.endsWith(')')) {
-    return parseComplex(term.slice(1, -1));
+    let parenCount = 0;
+    let isValid = true;
+    for (let i = 0; i < term.length; i++) {
+      if (term[i] === '(') parenCount++;
+      if (term[i] === ')') parenCount--;
+      if (parenCount < 0) {
+        isValid = false;
+        break;
+      }
+    }
+    if (isValid && parenCount === 0) {
+      return parseComplex(term.slice(1, -1));
+    }
   }
   return parseSingleComplex(term);
 }
