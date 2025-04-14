@@ -11,7 +11,6 @@ import { solve } from "./index.js";
 import { toggle, updatePlaceholderVisibility } from "./domUtils.js";
 import { insertFraction } from "./math/fraction.js";
 import { insertPower } from "./math/power.js";
-// import { insertSqrt } from "./math/sqrt.js";
 import { removeLoader } from './loader.js';
 
 const handleSolve = (expression) => solve(expression.trim());
@@ -90,7 +89,6 @@ export const addGlobalEventListeners = () => {
         insertPower(baseText);
         updatePlaceholderVisibility();
       }
-
   });
   inputField.addEventListener('input', () => {
       updatePlaceholderVisibility();
@@ -113,7 +111,6 @@ const removeBreaks = (element) => {
 const actionHandlers = {
   fraction: insertFraction,
   power: insertPower,
-  // sqrt: insertSqrt,
 };
 
 const handleMathKeyClick = (action) => {

@@ -82,148 +82,166 @@ export class Complex {
     if (imag === 0) return `${real}`;
     
     const imagAbs = Math.abs(imag);
-    const imagPart = imagAbs === 1 ? (imag > 0 ? "i" : "-i") : `${imagAbs}i`;
+    const imagPart = imagAbs === 1 ? "i" : `${imagAbs}i`;
     return `${real} ${imag > 0 ? '+' : '-'} ${imagPart}`;
   }
 }
 
-const operators = {
-  '/': (a, b) => a.divide(b),
-  '*': (a, b) => a.multiply(b),
-  '+': (a, b) => a.add(b),
-  '-': (a, b) => a.minus(b)
+function parseComplex(expr) {
+  const cleaned = expr.replace(/\s+/g, '').toLowerCase();
+  if (cleaned === 'i') return new Complex(0, 1);
+  if (cleaned === '-i') return new Complex(0, -1);
+  if (cleaned === '0') return new Complex(0, 0);
+
+  const fullMatch = cleaned.match(/^([+-]?\d*\.?\d*)([+-]\d*\.?\d*)i$/);
+  if (fullMatch) {
+    const real = fullMatch[1] === '' || fullMatch[1] === '+' || fullMatch[1] === '-' ? 0 : parseFloat(fullMatch[1]);
+    const imag = fullMatch[2] === '+' ? 1 : fullMatch[2] === '-' ? -1 : parseFloat(fullMatch[2]);
+    return new Complex(real, imag);
+  }
+
+  const imagMatch = cleaned.match(/^([+-]?\d*\.?\d*)i$/);
+  if (imagMatch) {
+    const imag = imagMatch[1] === '' || imagMatch[1] === '+' ? 1 :
+                 imagMatch[1] === '-' ? -1 : parseFloat(imagMatch[1]);
+    return new Complex(0, imag);
+  }
+
+  if (/^[+-]?\d*\.?\d*$/.test(cleaned) && !isNaN(cleaned)) {
+    return new Complex(parseFloat(cleaned), 0);
+  }
+
+  throw new Error(`Невозможно распарсить: ${expr}`);
+}
+
+function tokenize(expr) {
+  const cleaned = expr.replace(/\s+/g, '');
+  const tokens = [];
+  let i = 0;
+
+  while (i < cleaned.length) {
+    const char = cleaned[i];
+    if ((char === '+' || char === '-') && (
+        i === 0 || cleaned[i - 1] === '(' || ['+', '-', '*', '/', '^'].includes(cleaned[i - 1])
+      )) {
+      let sign = char;
+      i++;
+      let num = '';
+      while (i < cleaned.length && /[0-9.]/.test(cleaned[i])) {
+        num += cleaned[i++];
+      }
+      if (i < cleaned.length && cleaned[i] === 'i') {
+        tokens.push(sign + (num || '1') + 'i');
+        i++;
+      } else if (num !== '') {
+        tokens.push(sign + num);
+      } else {
+        tokens.push(sign);
+      }
+      continue;
+    }
+
+    if (char === '+' || char === '-' || char === '*' || char === '/' || char === '^' || char === '(' || char === ')') {
+      tokens.push(char);
+      i++;
+    } else if (/[0-9.]/.test(char)) {
+      let num = '';
+      while (i < cleaned.length && /[0-9.]/.test(cleaned[i])) {
+        num += cleaned[i++];
+      }
+      if (i < cleaned.length && cleaned[i] === 'i') {
+        tokens.push(num + 'i');
+        i++;
+      } else {
+        tokens.push(num);
+      }
+    } else if (char === 'i') {
+      tokens.push('1i');
+      i++;
+    } else {
+      throw new Error(`Недопустимый символ: ${char}`);
+    }
+  }
+  return tokens;
+}
+
+const precedence = {
+  '+': 1,
+  '-': 1,
+  '*': 2,
+  '/': 2,
+  '^': 3
 };
 
-export function parseComplex(expression) {
-  expression = expression.replace(/\s+/g, '');
-
-  while (expression.includes('--')) {
-    expression = expression.replace('--', '+');
-  }
-  // Handle exponentiation (^)
-  let parenCount = 0;
-  for (let i = 0; i < expression.length; i++) {
-    if (expression[i] === '(') parenCount++;
-    if (expression[i] === ')') parenCount--;
-    if (expression[i] === '^' && parenCount === 0) {
-      const parts = [expression.slice(0, i), expression.slice(i + 1)];
-      const base = parseComplex(parts[0]);
-      const exponent = parseFloat(parts[1]);
-      if (isNaN(exponent)) {
-        throw new Error('Invalid exponent: ' + parts[1]);
+function toRPN(tokens) {
+  const output = [];
+  const operators = [];
+  for (const token of tokens) {
+    if (token.match(/^-?\d+\.?\d*i?$|^-?\.\d+i?$|^-?\d*i$/)) {
+      output.push(token);
+    } else if (['+', '-', '*', '/', '^'].includes(token)) {
+      while (
+        operators.length > 0 &&
+        operators[operators.length - 1] !== '(' &&
+        precedence[operators[operators.length - 1]] >= precedence[token]
+      ) {
+        output.push(operators.pop());
       }
-      return base.pow(exponent);
-    }
-  }
-
-  // Split into terms (separated by + or -) at the top level
-  const terms = splitTerms(expression);
-  if (terms.length === 0) {
-    throw new Error('Пустое выражение');
-  }
-
-  // Parse the first term
-  let result = parseTerm(terms[0]);
-
-  // If there's only one term, check for multiplication/division at the top level
-  if (terms.length === 1) {
-    for (let op of ['/', '*']) {
-      let parenCount = 0;
-      for (let i = 0; i < terms[0].length; i++) {
-        if (terms[0][i] === '(') parenCount++;
-        if (terms[0][i] === ')') parenCount--;
-        if (terms[0][i] === op && parenCount === 0) {
-          const parts = [terms[0].slice(0, i), terms[0].slice(i + 1)];
-          const left = parseComplex(parts[0]);
-          const right = parseComplex(parts[1]);
-          return operators[op](left, right);
-        }
+      operators.push(token);
+    } else if (token === '(') {
+      operators.push(token);
+    } else if (token === ')') {
+      while (operators.length > 0 && operators[operators.length - 1] !== '(') {
+        output.push(operators.pop());
       }
+      if (operators.length === 0) {
+        throw new Error("Несоответствие скобок");
+      }
+      operators.pop();
     }
   }
 
-  // Combine terms with + or -
-  for (let i = 1; i < terms.length; i++) {
-    let term = terms[i];
-    let coefficient = 1;
-    if (term.startsWith('+')) {
-      term = term.slice(1);
-    } else if (term.startsWith('-')) {
-      coefficient = -1;
-      term = term.slice(1);
+  while (operators.length > 0) {
+    const op = operators.pop();
+    if (op === '(') {
+      throw new Error("Несоответствие скобок");
     }
-    const parsedTerm = parseTerm(term);
-    result = coefficient === 1 ? result.add(parsedTerm) : result.minus(parsedTerm);
+    output.push(op);
   }
-
-  return result;
+  return output;
 }
 
-function parseTerm(term) {
-  // Handle parentheses within a term
-  if (term.startsWith('(') && term.endsWith(')')) {
-    let parenCount = 0;
-    let isValid = true;
-    for (let i = 0; i < term.length; i++) {
-      if (term[i] === '(') parenCount++;
-      if (term[i] === ')') parenCount--;
-      if (parenCount < 0) {
-        isValid = false;
-        break;
-      }
-    }
-    if (isValid && parenCount === 0) {
-      return parseComplex(term.slice(1, -1));
-    }
-  }
-
-  // If no multiplication/division at the top level, parse as a single complex number
-  return parseSingleComplex(term);
-}
-
-function splitTerms(expression) {
-  const terms = [];
-  let currentTerm = '';
-  let parenCount = 0;
-
-  for (let i = 0; i < expression.length; i++) {
-    const char = expression[i];
-    if (char === '(') parenCount++;
-    if (char === ')') parenCount--;
-
-    if ((char === '+' || char === '-') && parenCount === 0 && i > 0) {
-      if (currentTerm) terms.push(currentTerm);
-      currentTerm = char;
+function evaluateRPN(rpn) {
+  const stack = [];
+  for (const token of rpn) {
+    if (token.match(/^-?\d+\.?\d*i?$|^-?\.\d+i?$|^-?\d*i$/)) {
+      stack.push(parseComplex(token));
     } else {
-      currentTerm += char;
+      if (stack.length < 2) {
+        throw new Error("Недостаточно операндов");
+      }
+      const b = stack.pop();
+      const a = stack.pop();
+
+      switch (token) {
+        case '+': stack.push(a.add(b)); break;
+        case '-': stack.push(a.minus(b)); break;
+        case '*': stack.push(a.multiply(b)); break;
+        case '/': stack.push(a.divide(b)); break;
+        case '^': stack.push(a.pow(b.real)); break;
+        default: throw new Error(`Неизвестный оператор: ${token}`);
+      }
     }
   }
-  if (currentTerm) terms.push(currentTerm);
 
-  return terms;
+  if (stack.length !== 1) {
+    throw new Error("Некорректное выражение");
+  }
+  return stack[0];
 }
 
-function parseSingleComplex(str) {
-  const complexRegex = /^([-+]?\d*\.?\d*i?|[-+]?\d*\.?\d+)(?:([-+])\s*(\d*\.?\d*)i)?$/i;
-  const match = str.match(complexRegex);
-
-  if (!match) {
-    throw new Error('Не удалось распарсить комплексное число: ' + str);
-  }
-
-  let realPart = 0;
-  let imagPart = 0;
-
-  if (match[1].endsWith('i')) {
-    const coeff = match[1].replace('i', '');
-    imagPart = parseFloat(coeff) || (coeff === '' || coeff === '+' ? 1 : -1);
-  } else {
-    realPart = parseFloat(match[1]) || 0;
-    if (match[2] && match[3]) {
-      const coeff = match[3];
-      imagPart = parseFloat(coeff) * (match[2] === '-' ? -1 : 1) || (coeff === '' ? (match[2] === '-' ? -1 : 1) : 0);
-    }
-  }
-
-  return new Complex(realPart, imagPart);
+export function evaluateComplexExpression(expr) {
+  const tokens = tokenize(expr);
+  const rpn = toRPN(tokens);
+  return evaluateRPN(rpn);
 }
