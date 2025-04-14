@@ -10,29 +10,14 @@ import {
 import { solve } from "./index.js";
 import { toggle, updatePlaceholderVisibility } from "./domUtils.js";
 import { insertFraction } from "./math/fraction.js";
-import { insertPower } from "./math/power.js"
+import { insertPower } from "./math/power.js";
+// import { insertSqrt } from "./math/sqrt.js";
 import { removeLoader } from './loader.js';
-
-const originalStyles = {
-  inputFieldBorder: inputField.style.border,
-  solveButtonBackground: solveButton.style.background,
-};
 
 const handleSolve = (expression) => solve(expression.trim());
 const toggleWithExclusive = (button, container, otherButton, otherContainer) => {
-  const isMathButton = button === mathButton;
-  const willBeActive = !button.classList.contains("active");
   toggle(button);
   toggle(container);
-  if (isMathButton) {
-    if (willBeActive) {
-      inputField.style.border = "2px solid #3B82F6";
-      solveButton.style.background = "#3B82F6";
-    } else {
-      inputField.style.border = originalStyles.inputFieldBorder;
-      solveButton.style.background = originalStyles.solveButtonBackground;
-    }
-  }
   if (otherButton.classList.contains("active")) {
     toggle(otherButton);
     toggle(otherContainer);
@@ -46,7 +31,7 @@ export const addGlobalEventListeners = () => {
           event.preventDefault();
           handleSolve(inputField.textContent);
       }
-      if (event.key === '/' && mathButton.classList.contains('active')) {
+      if (event.key === '/') {
         event.preventDefault();
         const selection = window.getSelection();
         let numeratorText = '';
@@ -75,7 +60,7 @@ export const addGlobalEventListeners = () => {
         updatePlaceholderVisibility();
       }
       
-      if (event.key === '^' && mathButton.classList.contains('active')) {
+      if (event.key === '^') {
         event.preventDefault();
         const selection = window.getSelection();
         let baseText = '';
@@ -128,6 +113,7 @@ const removeBreaks = (element) => {
 const actionHandlers = {
   fraction: insertFraction,
   power: insertPower,
+  // sqrt: insertSqrt,
 };
 
 const handleMathKeyClick = (action) => {

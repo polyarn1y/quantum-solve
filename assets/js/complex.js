@@ -97,59 +97,52 @@ const operators = {
 export function parseComplex(expression) {
   expression = expression.replace(/\s+/g, '');
 
-  if (expression.startsWith('(') && expression.endsWith(')')) {
-    let parenCount = 0;
-    let isNested = false;
-    for (let i = 1; i < expression.length - 1; i++) {
-      if (expression[i] === '(') parenCount++;
-      if (expression[i] === ')') parenCount--;
-      if (parenCount < 0) {
-        isNested = true;
-        break;
+  while (expression.includes('--')) {
+    expression = expression.replace('--', '+');
+  }
+  // Handle exponentiation (^)
+  let parenCount = 0;
+  for (let i = 0; i < expression.length; i++) {
+    if (expression[i] === '(') parenCount++;
+    if (expression[i] === ')') parenCount--;
+    if (expression[i] === '^' && parenCount === 0) {
+      const parts = [expression.slice(0, i), expression.slice(i + 1)];
+      const base = parseComplex(parts[0]);
+      const exponent = parseFloat(parts[1]);
+      if (isNaN(exponent)) {
+        throw new Error('Invalid exponent: ' + parts[1]);
       }
-    }
-    if (!isNested && parenCount === 0) {
-      return parseComplex(expression.slice(1, -1));
+      return base.pow(exponent);
     }
   }
 
-  for (let op of ['^']) {
-    let parenCount = 0;
-    for (let i = 0; i < expression.length; i++) {
-      if (expression[i] === '(') parenCount++;
-      if (expression[i] === ')') parenCount--;
-      if (expression[i] === op && parenCount === 0) {
-        const parts = [expression.slice(0, i), expression.slice(i + 1)];
-        const base = parseComplex(parts[0]);
-        const exponent = parseFloat(parts[1])
-        if (isNaN(exponent)) {
-          throw new Error('Invalid exponent: ' + parts[1]);
-        }
-        return base.pow(exponent);
-      }
-    }
-  }
-
-  for (let op of ['/', '*']) {
-    let parenCount = 0;
-    for (let i = 0; i < expression.length; i++) {
-      if (expression[i] === '(') parenCount++;
-      if (expression[i] === ')') parenCount--;
-      if (expression[i] === op && parenCount === 0) {
-        const parts = [expression.slice(0, i), expression.slice(i + 1)];
-        const left = parseComplex(parts[0]);
-        const right = parseComplex(parts[1]);
-        return operators[op](left, right);
-      }
-    }
-  }
-
+  // Split into terms (separated by + or -) at the top level
   const terms = splitTerms(expression);
   if (terms.length === 0) {
     throw new Error('Пустое выражение');
   }
 
+  // Parse the first term
   let result = parseTerm(terms[0]);
+
+  // If there's only one term, check for multiplication/division at the top level
+  if (terms.length === 1) {
+    for (let op of ['/', '*']) {
+      let parenCount = 0;
+      for (let i = 0; i < terms[0].length; i++) {
+        if (terms[0][i] === '(') parenCount++;
+        if (terms[0][i] === ')') parenCount--;
+        if (terms[0][i] === op && parenCount === 0) {
+          const parts = [terms[0].slice(0, i), terms[0].slice(i + 1)];
+          const left = parseComplex(parts[0]);
+          const right = parseComplex(parts[1]);
+          return operators[op](left, right);
+        }
+      }
+    }
+  }
+
+  // Combine terms with + or -
   for (let i = 1; i < terms.length; i++) {
     let term = terms[i];
     let coefficient = 1;
@@ -167,6 +160,7 @@ export function parseComplex(expression) {
 }
 
 function parseTerm(term) {
+  // Handle parentheses within a term
   if (term.startsWith('(') && term.endsWith(')')) {
     let parenCount = 0;
     let isValid = true;
@@ -182,6 +176,8 @@ function parseTerm(term) {
       return parseComplex(term.slice(1, -1));
     }
   }
+
+  // If no multiplication/division at the top level, parse as a single complex number
   return parseSingleComplex(term);
 }
 
@@ -219,11 +215,13 @@ function parseSingleComplex(str) {
   let imagPart = 0;
 
   if (match[1].endsWith('i')) {
-    imagPart = parseFloat(match[1].replace('i', '')) || 1; 
+    const coeff = match[1].replace('i', '');
+    imagPart = parseFloat(coeff) || (coeff === '' || coeff === '+' ? 1 : -1);
   } else {
-    realPart = parseFloat(match[1]) || 0; 
+    realPart = parseFloat(match[1]) || 0;
     if (match[2] && match[3]) {
-      imagPart = parseFloat(match[3]) * (match[2] === '-' ? -1 : 1);
+      const coeff = match[3];
+      imagPart = parseFloat(coeff) * (match[2] === '-' ? -1 : 1) || (coeff === '' ? (match[2] === '-' ? -1 : 1) : 0);
     }
   }
 
