@@ -119,7 +119,48 @@ const setupFractionEvents = (numerator, denominator) => {
       isFractionSelected = false;
     }
   });
-
+  const handleInputFieldBackspace = (e) => {
+    if (e.key === 'Backspace') {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const startContainer = range.startContainer;
+        const startOffset = range.startOffset;
+        if (startContainer === inputField) {
+          const nodes = Array.from(inputField.childNodes);
+          let prevFraction = null;
+          for (let i = startOffset - 1; i >= 0; i--) {
+            if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('fraction')) {
+              prevFraction = nodes[i];
+              break;
+            }
+          }
+          if (prevFraction === fraction) {
+            e.preventDefault();
+            moveFocus(denominator, 'end');
+            return;
+          }
+        } else if (
+          startContainer.nodeType === Node.TEXT_NODE &&
+          startContainer.parentNode === inputField
+        ) {
+          const nodes = Array.from(inputField.childNodes);
+          const currentNodeIndex = nodes.findIndex(
+            (node) => node === startContainer || node.contains(startContainer)
+          );
+          if (startOffset === 0 && currentNodeIndex >= 0) {
+            const prevSibling = startContainer.previousSibling;
+            if (prevSibling === fraction) {
+              e.preventDefault();
+              moveFocus(denominator, 'end');
+              return;
+            }
+          }
+        }
+      }
+    }
+  };
+  inputField.addEventListener('keydown', handleInputFieldBackspace);
   document.addEventListener('click', (e) => {
     if (!fraction.contains(e.target)) {
       fraction.classList.remove('selected');
