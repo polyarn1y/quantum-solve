@@ -1,6 +1,6 @@
 import { querySpan, outputSpan, errorContainer, resultContainer, inputField, placeholder } from "./constants.js";
 import { Complex, evaluateComplexExpression } from "./complex.js";
-import { show, hide } from "./domUtils.js";
+import { show, hide, formatNumber } from "./utils.js";
 import { addGlobalEventListeners } from "./globalEventLisneters.js";
 import { parseFractions } from "./math/fraction.js";
 
@@ -39,8 +39,14 @@ export function solve() {
     ? parseFractions(true)
     : inputField.textContent;
     querySpan.textContent = queryString.replace(/\*/g, '×');
-    outputSpan.textContent = result instanceof Complex ? result.toString() : result;
-    
+
+    if (result instanceof Complex) {
+      outputSpan.textContent = result.toString();
+    } else if (typeof result === 'number') {
+      outputSpan.textContent = formatNumber(result);
+    } else {
+      outputSpan.textContent = result;
+    }
     show(resultContainer);
   } catch (error) {
     show(errorContainer);

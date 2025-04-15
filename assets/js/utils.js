@@ -1,6 +1,10 @@
 import { inputField, placeholder } from "./constants.js";
 
 export const toggle = (element) => element.classList.toggle("active");
+export const formatNumber = (num) => {
+  const rounded = Number(num.toFixed(3));
+  return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(3);
+};
 export const show = (element) => element.classList.add("active");
 export const hide = (element) => element.classList.remove("active");
 export const updatePlaceholderVisibility = () => {

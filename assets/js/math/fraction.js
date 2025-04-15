@@ -1,4 +1,10 @@
 import { inputField } from "../constants.js";
+import { updatePlaceholderVisibility } from "../utils.js";
+
+inputField.addEventListener('keydown', (event) => {
+  handleSlashKey(event);
+  updatePlaceholderVisibility();
+});
 
 const FRACTION_TEMPLATE = `
   <span class="fraction" contenteditable="false">
@@ -48,6 +54,48 @@ export const insertFraction = (numeratorText) => {
     numerator.focus();
   }
 }
+
+export const handleSlashKey = (event) => {
+  if (event.key === '/') {
+    event.preventDefault();
+    const selection = window.getSelection();
+    let numeratorText = '';
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const startContainer = range.startContainer;
+      const startOffset = range.startOffset;
+      if (startContainer.nodeType === Node.TEXT_NODE) {
+        const textBefore = startContainer.textContent.slice(0, startOffset).trim();
+        const operatorPattern = /[+\-*/]\s*$/;
+        if (operatorPattern.test(textBefore)) {
+          numeratorText = '';
+        } else {
+          numeratorText = textBefore;
+          startContainer.textContent = startContainer.textContent.slice(startOffset);
+        }
+      } else if (startContainer === inputField || startContainer.parentNode === inputField) {
+        const nodes = Array.from(inputField.childNodes);
+        const currentNodeIndex = nodes.findIndex(node => 
+          node === startContainer || node.contains(startContainer)
+        );
+        if (currentNodeIndex > 0) {
+          const prevNode = nodes[currentNodeIndex - 1];
+          if (prevNode.nodeType === Node.TEXT_NODE) {
+            const textBefore = prevNode.textContent.trim();
+            const operatorPattern = /[+\-*/]\s*$/;
+            if (operatorPattern.test(textBefore)) {
+              numeratorText = '';
+            } else {
+              numeratorText = textBefore;
+              prevNode.remove();
+            }
+          }
+        }
+      }
+    }
+    insertFraction(numeratorText);
+  }
+};
 
 const setupFractionEvents = (numerator, denominator) => {
   const fraction = numerator.closest('.fraction');

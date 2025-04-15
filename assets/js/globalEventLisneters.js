@@ -8,7 +8,7 @@ import {
   mathKeys,
 } from "./constants.js";
 import { solve } from "./index.js";
-import { toggle, updatePlaceholderVisibility } from "./domUtils.js";
+import { toggle, updatePlaceholderVisibility } from "./utils.js";
 import { insertFraction } from "./math/fraction.js";
 import { insertPower } from "./math/power.js";
 import { removeLoader } from './loader.js';
@@ -36,47 +36,6 @@ export const addGlobalEventListeners = () => {
           event.preventDefault();
           handleSolve(inputField.textContent);
       }
-      if (event.key === '/') {
-        event.preventDefault();
-        const selection = window.getSelection();
-        let numeratorText = '';
-        if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const startContainer = range.startContainer;
-            const startOffset = range.startOffset;
-                if (startContainer.nodeType === Node.TEXT_NODE) {
-                const textBefore = startContainer.textContent.slice(0, startOffset).trim();
-                const operatorPattern = /[+\-*/]\s*$/;
-                if (operatorPattern.test(textBefore)) {
-                    numeratorText = '';
-                } else {
-                    numeratorText = textBefore;
-                    startContainer.textContent = startContainer.textContent.slice(startOffset);
-                }
-            } else if (startContainer === inputField || startContainer.parentNode === inputField) {
-                const nodes = Array.from(inputField.childNodes);
-                const currentNodeIndex = nodes.findIndex(node => 
-                    node === startContainer || node.contains(startContainer)
-                );
-                if (currentNodeIndex > 0) {
-                    const prevNode = nodes[currentNodeIndex - 1];
-                    if (prevNode.nodeType === Node.TEXT_NODE) {
-                        const textBefore = prevNode.textContent.trim();
-                        const operatorPattern = /[+\-*/]\s*$/;
-                        if (operatorPattern.test(textBefore)) {
-                            numeratorText = '';
-                        } else {
-                            numeratorText = textBefore;
-                            prevNode.remove();
-                        }
-                    }
-                }
-            }
-        }
-        insertFraction(numeratorText);
-        updatePlaceholderVisibility();
-      }
-      
       if (event.key === '^') {
         event.preventDefault();
         const selection = window.getSelection();
@@ -136,8 +95,6 @@ const handleMathKeyClick = (action) => {
   if (insertFunction) {
     insertFunction();
     updatePlaceholderVisibility();
-  } else {
-    console.warn(`No handler found for action: ${action}`);
   }
 };
 
