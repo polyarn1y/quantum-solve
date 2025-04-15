@@ -76,17 +76,26 @@ const handleInputFieldBackspace = (e) => {
 
       if (prevFraction) {
         e.preventDefault();
-        const allFractions = inputField.querySelectorAll('.fraction');
-        allFractions.forEach(f => {
-          f.classList.remove('selected');
-          f.dataset.selected = 'false';
-        });
-        prevFraction.classList.add('selected');
-        prevFraction.dataset.selected = 'true';
-        const newRange = document.createRange();
-        newRange.selectNode(prevFraction);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
+        const numerator = prevFraction.querySelector('.numerator');
+        const denominator = prevFraction.querySelector('.denominator');
+        const numeratorContent = numerator.textContent.trim();
+        const denominatorContent = denominator.textContent.trim();
+
+        if (numeratorContent || denominatorContent) {
+          moveFocus(denominator, 'end');
+        } else {
+          const allFractions = inputField.querySelectorAll('.fraction');
+          allFractions.forEach(f => {
+            f.classList.remove('selected');
+            f.dataset.selected = 'false';
+          });
+          prevFraction.classList.add('selected');
+          prevFraction.dataset.selected = 'true';
+          const newRange = document.createRange();
+          newRange.selectNode(prevFraction);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
         return;
       }
     }
