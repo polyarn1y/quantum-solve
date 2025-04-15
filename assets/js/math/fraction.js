@@ -1,6 +1,105 @@
 import { inputField } from "../constants.js";
 import { updatePlaceholderVisibility } from "../utils.js";
 
+const handleInputFieldBackspace = (e) => {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    const allFractions = inputField.querySelectorAll('.fraction');
+    allFractions.forEach(f => {
+      f.classList.remove('selected');
+      f.dataset.selected = 'false';
+    });
+    return;
+  }
+
+  if (e.key === 'Backspace') {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const startContainer = range.startContainer;
+      const startOffset = range.startOffset;
+      const selectedFraction = inputField.querySelector('.fraction.selected');
+      if (selectedFraction) {
+        e.preventDefault();
+        const parent = selectedFraction.parentNode;
+        const nextSibling = selectedFraction.nextSibling;
+        selectedFraction.remove();
+        const newRange = document.createRange();
+        if (nextSibling) {
+          newRange.setStartBefore(nextSibling);
+        } else if (parent) {
+          newRange.setStart(parent, parent.childNodes.length);
+        } else {
+          newRange.setStart(inputField, 0);
+        }
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        return;
+      }
+      if (
+        startContainer.nodeType === Node.TEXT_NODE &&
+        startContainer.parentNode === inputField &&
+        startOffset > 0
+      ) {
+        return;
+      }
+      let prevFraction = null;
+      if (startContainer === inputField) {
+        const nodes = Array.from(inputField.childNodes);
+        for (let i = startOffset - 1; i >= 0; i--) {
+          if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('fraction')) {
+            prevFraction = nodes[i];
+            break;
+          }
+        }
+      } else if (
+        startContainer.nodeType === Node.TEXT_NODE &&
+        startContainer.parentNode === inputField
+      ) {
+        const nodes = Array.from(inputField.childNodes);
+        const currentNodeIndex = nodes.findIndex(
+          (node) => node === startContainer || node.contains(startContainer)
+        );
+        if (startOffset === 0 && currentNodeIndex >= 0) {
+          const prevNode = nodes[currentNodeIndex - 1];
+          if (prevNode && prevNode.classList && prevNode.classList.contains('fraction')) {
+            prevFraction = prevNode;
+          }
+        }
+      } else if (startContainer.closest && startContainer.closest('.fraction')) {
+        prevFraction = startContainer.closest('.fraction');
+      }
+
+      if (prevFraction) {
+        e.preventDefault();
+        const numerator = prevFraction.querySelector('.numerator');
+        const denominator = prevFraction.querySelector('.denominator');
+        const numeratorContent = numerator.textContent.trim();
+        const denominatorContent = denominator.textContent.trim();
+
+        if (numeratorContent || denominatorContent) {
+          moveFocus(denominator, 'end');
+        } else {
+          const allFractions = inputField.querySelectorAll('.fraction');
+          allFractions.forEach(f => {
+            f.classList.remove('selected');
+            f.dataset.selected = 'false';
+          });
+          prevFraction.classList.add('selected');
+          prevFraction.dataset.selected = 'true';
+          const newRange = document.createRange();
+          newRange.selectNode(prevFraction);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+        return;
+      }
+    }
+  }
+};
+
+inputField.addEventListener('keydown', handleInputFieldBackspace);
+
 inputField.addEventListener('keydown', (event) => {
   handleSlashKey(event);
   updatePlaceholderVisibility();
@@ -21,11 +120,11 @@ const createFractionElement = (numeratorText) => {
   const numerator = fractionElement.querySelector(".numerator");
   const denominator = fractionElement.querySelector(".denominator");
 
-  if (numeratorText) numerator.textContent = numeratorText
+  if (numeratorText) numerator.textContent = numeratorText;
 
   setupFractionEvents(numerator, denominator);
   return fractionElement;
-}
+};
 
 export const insertFraction = (numeratorText) => {
   const fractionElement = createFractionElement(numeratorText);
@@ -46,14 +145,14 @@ export const insertFraction = (numeratorText) => {
     range.setStartAfter(fractionElement);
     range.collapse(true);
     selection.removeAllRanges();
-    selection.addRange(range);   
+    selection.addRange(range);
   }
   if (numeratorText) {
-    denominator.focus(); 
+    denominator.focus();
   } else {
     numerator.focus();
   }
-}
+};
 
 export const handleSlashKey = (event) => {
   if (event.key === '/') {
@@ -75,7 +174,7 @@ export const handleSlashKey = (event) => {
         }
       } else if (startContainer === inputField || startContainer.parentNode === inputField) {
         const nodes = Array.from(inputField.childNodes);
-        const currentNodeIndex = nodes.findIndex(node => 
+        const currentNodeIndex = nodes.findIndex(node =>
           node === startContainer || node.contains(startContainer)
         );
         if (currentNodeIndex > 0) {
@@ -99,7 +198,6 @@ export const handleSlashKey = (event) => {
 
 const setupFractionEvents = (numerator, denominator) => {
   const fraction = numerator.closest('.fraction');
-  let isFractionSelected = false;
 
   const handleBackspace = (element, e) => {
     if (e.key === 'Backspace' && element.textContent.trim() === '') {
@@ -116,22 +214,35 @@ const setupFractionEvents = (numerator, denominator) => {
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
-      } else if (isFractionSelected) {
+      } else if (fraction.dataset.selected === 'true') {
+        const parent = fraction.parentNode;
+        const nextSibling = fraction.nextSibling;
         fraction.remove();
         const selection = window.getSelection();
         const range = document.createRange();
-        range.setStartBefore(fraction);
+        if (nextSibling) {
+          range.setStartBefore(nextSibling);
+        } else if (parent) {
+          range.setStart(parent, parent.childNodes.length);
+        } else {
+          range.setStart(inputField, 0);
+        }
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
       } else {
+        const allFractions = inputField.querySelectorAll('.fraction');
+        allFractions.forEach(f => {
+          f.classList.remove('selected');
+          f.dataset.selected = 'false';
+        });
         fraction.classList.add('selected');
+        fraction.dataset.selected = 'true';
         const selection = window.getSelection();
         const range = document.createRange();
         range.selectNode(fraction);
         selection.removeAllRanges();
         selection.addRange(range);
-        isFractionSelected = true;
       }
     }
   };
@@ -148,7 +259,7 @@ const setupFractionEvents = (numerator, denominator) => {
     }
     if (e.key !== 'Backspace') {
       fraction.classList.remove('selected');
-      isFractionSelected = false;
+      fraction.dataset.selected = 'false';
     }
   });
 
@@ -164,55 +275,14 @@ const setupFractionEvents = (numerator, denominator) => {
     }
     if (e.key !== 'Backspace') {
       fraction.classList.remove('selected');
-      isFractionSelected = false;
+      fraction.dataset.selected = 'false';
     }
   });
-  const handleInputFieldBackspace = (e) => {
-    if (e.key === 'Backspace') {
-      const selection = window.getSelection();
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const startContainer = range.startContainer;
-        const startOffset = range.startOffset;
-        if (startContainer === inputField) {
-          const nodes = Array.from(inputField.childNodes);
-          let prevFraction = null;
-          for (let i = startOffset - 1; i >= 0; i--) {
-            if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('fraction')) {
-              prevFraction = nodes[i];
-              break;
-            }
-          }
-          if (prevFraction === fraction) {
-            e.preventDefault();
-            moveFocus(denominator, 'end');
-            return;
-          }
-        } else if (
-          startContainer.nodeType === Node.TEXT_NODE &&
-          startContainer.parentNode === inputField
-        ) {
-          const nodes = Array.from(inputField.childNodes);
-          const currentNodeIndex = nodes.findIndex(
-            (node) => node === startContainer || node.contains(startContainer)
-          );
-          if (startOffset === 0 && currentNodeIndex >= 0) {
-            const prevSibling = startContainer.previousSibling;
-            if (prevSibling === fraction) {
-              e.preventDefault();
-              moveFocus(denominator, 'end');
-              return;
-            }
-          }
-        }
-      }
-    }
-  };
-  inputField.addEventListener('keydown', handleInputFieldBackspace);
+
   document.addEventListener('click', (e) => {
     if (!fraction.contains(e.target)) {
       fraction.classList.remove('selected');
-      isFractionSelected = false;
+      fraction.dataset.selected = 'false';
     }
   });
 };
@@ -220,24 +290,24 @@ const setupFractionEvents = (numerator, denominator) => {
 const getSelection = () => {
   const selection = window.getSelection();
   return {
-      selection: selection.rangeCount > 0 ? selection : null,
-      range: selection.rangeCount > 0 ? selection.getRangeAt(0) : null
+    selection: selection.rangeCount > 0 ? selection : null,
+    range: selection.rangeCount > 0 ? selection.getRangeAt(0) : null
   };
 };
 
 const isAtEnd = (range, element) =>
   range.endContainer === element
-      ? range.endOffset === element.childNodes.length
-      : range.endContainer.nodeType === Node.TEXT_NODE
-          && range.endOffset === range.endContainer.textContent.length
-          && !range.endContainer.nextSibling;
+    ? range.endOffset === element.childNodes.length
+    : range.endContainer.nodeType === Node.TEXT_NODE
+      && range.endOffset === range.endContainer.textContent.length
+      && !range.endContainer.nextSibling;
 
 const isAtStart = (range, element) =>
   range.startContainer === element
-      ? range.startOffset === 0
-      : range.startContainer.nodeType === Node.TEXT_NODE
-          && range.startOffset === 0
-          && !range.startContainer.previousSibling;
+    ? range.startOffset === 0
+    : range.startContainer.nodeType === Node.TEXT_NODE
+      && range.startOffset === 0
+      && !range.startContainer.previousSibling;
 
 const moveFocus = (target, position) => {
   target.focus();
@@ -245,16 +315,16 @@ const moveFocus = (target, position) => {
   const newRange = document.createRange();
 
   if (position === 'end') {
-      if (target.childNodes.length === 0) {
-          newRange.setStart(target, 0);
-      } else if (target.firstChild.nodeType === Node.TEXT_NODE) {
-          newRange.setStart(target.firstChild, target.firstChild.textContent.length); 
-      } else {
-          newRange.selectNodeContents(target);
-          newRange.collapse(false); 
-      }
+    if (target.childNodes.length === 0) {
+      newRange.setStart(target, 0);
+    } else if (target.firstChild.nodeType === Node.TEXT_NODE) {
+      newRange.setStart(target.firstChild, target.firstChild.textContent.length);
+    } else {
+      newRange.selectNodeContents(target);
+      newRange.collapse(false);
+    }
   } else {
-      newRange.setStart(target, position); 
+    newRange.setStart(target, position);
   }
 
   newRange.collapse(true);
@@ -288,4 +358,4 @@ export function parseFractions(forDisplay = false) {
     }
   });
   return expression.trim();
-}
+};
