@@ -25,6 +25,12 @@ const toggleWithExclusive = (button, container, otherButton, otherContainer) => 
 
 export const addGlobalEventListeners = () => {
   window.addEventListener("load", removeLoader);
+  inputField.addEventListener('paste', (event) => {
+    event.preventDefault();
+    const text = (event.clipboardData || window.clipboardData).getData('text/plain');    
+    document.execCommand('insertText', false, text);
+    updatePlaceholderVisibility();
+  });
   inputField.addEventListener('keypress', (event) => {
       if (event.key === "Enter") {
           event.preventDefault();
@@ -35,25 +41,37 @@ export const addGlobalEventListeners = () => {
         const selection = window.getSelection();
         let numeratorText = '';
         if (selection.rangeCount > 0) {
-          const range = selection.getRangeAt(0);
-          const startContainer = range.startContainer;
-          const startOffset = range.startOffset;
-          if (startContainer.nodeType === Node.TEXT_NODE) {
-            numeratorText = startContainer.textContent.slice(0, startOffset).trim();
-            startContainer.textContent = startContainer.textContent.slice(startOffset);
-          } else if (startContainer === inputField || startContainer.parentNode === inputField) {
-            const nodes = Array.from(inputField.childNodes);
-            const currentNodeIndex = nodes.findIndex(node => 
-              node === startContainer || node.contains(startContainer)
-            );
-            if (currentNodeIndex > 0) {
-              const prevNode = nodes[currentNodeIndex - 1];
-              if (prevNode.nodeType === Node.TEXT_NODE) {
-                numeratorText = prevNode.textContent.trim();
-                prevNode.remove();
-              }
+            const range = selection.getRangeAt(0);
+            const startContainer = range.startContainer;
+            const startOffset = range.startOffset;
+                if (startContainer.nodeType === Node.TEXT_NODE) {
+                const textBefore = startContainer.textContent.slice(0, startOffset).trim();
+                const operatorPattern = /[+\-*/]\s*$/;
+                if (operatorPattern.test(textBefore)) {
+                    numeratorText = '';
+                } else {
+                    numeratorText = textBefore;
+                    startContainer.textContent = startContainer.textContent.slice(startOffset);
+                }
+            } else if (startContainer === inputField || startContainer.parentNode === inputField) {
+                const nodes = Array.from(inputField.childNodes);
+                const currentNodeIndex = nodes.findIndex(node => 
+                    node === startContainer || node.contains(startContainer)
+                );
+                if (currentNodeIndex > 0) {
+                    const prevNode = nodes[currentNodeIndex - 1];
+                    if (prevNode.nodeType === Node.TEXT_NODE) {
+                        const textBefore = prevNode.textContent.trim();
+                        const operatorPattern = /[+\-*/]\s*$/;
+                        if (operatorPattern.test(textBefore)) {
+                            numeratorText = '';
+                        } else {
+                            numeratorText = textBefore;
+                            prevNode.remove();
+                        }
+                    }
+                }
             }
-          }
         }
         insertFraction(numeratorText);
         updatePlaceholderVisibility();

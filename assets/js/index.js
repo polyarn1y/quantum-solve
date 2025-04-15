@@ -2,13 +2,16 @@ import { querySpan, outputSpan, errorContainer, resultContainer, inputField, pla
 import { Complex, evaluateComplexExpression } from "./complex.js";
 import { show, hide } from "./domUtils.js";
 import { addGlobalEventListeners } from "./globalEventLisneters.js";
+import { parseFractions } from "./math/fraction.js";
 
 addGlobalEventListeners();
 
 export function solve() {
   try {
     hide(errorContainer);
-    const expression = inputField.textContent.trim();
+    const hasCustomElements = inputField.querySelectorAll('.fraction, .power').length > 0;
+    let expression = hasCustomElements ? parseFractions() : inputField.textContent.trim();
+
     const isComplex = /[i]/.test(expression);
     let result;
     if (isComplex) {
@@ -32,11 +35,12 @@ export function solve() {
         throw new Error("Неверный результат");
       }
     }
-
-    const queryString = expression.replace(/\*/g, '×');
-    querySpan.textContent = queryString;
+    const queryString = hasCustomElements
+    ? parseFractions(true)
+    : inputField.textContent;
+    querySpan.textContent = queryString.replace(/\*/g, '×');
     outputSpan.textContent = result instanceof Complex ? result.toString() : result;
-
+    
     show(resultContainer);
   } catch (error) {
     show(errorContainer);
