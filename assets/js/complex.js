@@ -77,13 +77,20 @@ export class Complex {
 
   toString() {
     const { real, imag } = this;
-    if (real === 0 && imag === 0) return "0";
-    if (real === 0) return imag === 1 ? "i" : imag === -1 ? "-i" : `${imag}i`;
-    if (imag === 0) return `${real}`;
-    
-    const imagAbs = Math.abs(imag);
+    const roundedReal = parseFloat(real.toFixed(2));
+    const roundedImag = parseFloat(imag.toFixed(2));
+  
+    if (roundedReal === 0 && roundedImag === 0) return "0";
+    if (roundedReal === 0) {
+      if (roundedImag === 1) return "i";
+      if (roundedImag === -1) return "-i";
+      return `${roundedImag}i`;
+    }
+    if (roundedImag === 0) return `${roundedReal}`;
+  
+    const imagAbs = Math.abs(roundedImag);
     const imagPart = imagAbs === 1 ? "i" : `${imagAbs}i`;
-    return `${real} ${imag > 0 ? '+' : '-'} ${imagPart}`;
+    return `${roundedReal} ${roundedImag > 0 ? '+' : '-'} ${imagPart}`;
   }
 }
 
