@@ -135,10 +135,12 @@ export const insertFraction = (numeratorText) => {
     const range = selection.getRangeAt(0);
     range.deleteContents();
     range.insertNode(fractionElement);
-    range.setStartBefore(fractionElement);
-    range.collapse(true);
+    
+    const newRange = document.createRange();
+    newRange.setStartAfter(fractionElement);
+    newRange.collapse(true);
     selection.removeAllRanges();
-    selection.addRange(range);
+    selection.addRange(newRange);
   } else {
     inputField.appendChild(fractionElement);
     const range = document.createRange();
@@ -154,45 +156,113 @@ export const insertFraction = (numeratorText) => {
   }
 };
 
+const findMatchingOpenParen = (text, closeParenIndex) => {
+  let openParenCount = 0;
+  for (let i = closeParenIndex; i >= 0; i--) {
+    if (text[i] === ')') {
+      openParenCount++;
+    } else if (text[i] === '(') {
+      openParenCount--;
+      if (openParenCount === 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
+};
+
 export const handleSlashKey = (event) => {
   if (event.key === '/') {
     event.preventDefault();
+    
     const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    
+    const range = selection.getRangeAt(0);
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    
+    if (startContainer.closest && startContainer.closest('.fraction')) {
+      return;
+    }
+    
     let numeratorText = '';
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const startContainer = range.startContainer;
-      const startOffset = range.startOffset;
-      if (startContainer.nodeType === Node.TEXT_NODE) {
-        const textBefore = startContainer.textContent.slice(0, startOffset).trim();
-        const operatorPattern = /[+\-*/]\s*$/;
-        if (operatorPattern.test(textBefore)) {
-          numeratorText = '';
+    let textToPreserve = '';
+    
+    if (startContainer.nodeType === Node.TEXT_NODE) {
+      const fullText = startContainer.textContent;
+      const textBeforeCursor = fullText.substring(0, startOffset);
+      
+      if (textBeforeCursor) {
+        const lastOpenParen = textBeforeCursor.lastIndexOf('(');
+        const lastCloseParen = textBeforeCursor.lastIndexOf(')');
+        
+        if (lastCloseParen === textBeforeCursor.length - 1 && lastOpenParen !== -1 && lastOpenParen < lastCloseParen) {
+          const matchingOpenParen = findMatchingOpenParen(textBeforeCursor, lastCloseParen);
+          if (matchingOpenParen !== -1) {
+            numeratorText = textBeforeCursor.substring(matchingOpenParen + 1, lastCloseParen);
+            textToPreserve = textBeforeCursor.substring(0, matchingOpenParen);
+          } else {
+            numeratorText = textBeforeCursor;
+            textToPreserve = '';
+          }
+        } else if (lastOpenParen > lastCloseParen && lastOpenParen !== -1) {
+          numeratorText = textBeforeCursor.substring(lastOpenParen + 1);
+          textToPreserve = textBeforeCursor.substring(0, lastOpenParen + 1);
         } else {
-          numeratorText = textBefore;
-          startContainer.textContent = startContainer.textContent.slice(startOffset);
-        }
-      } else if (startContainer === inputField || startContainer.parentNode === inputField) {
-        const nodes = Array.from(inputField.childNodes);
-        const currentNodeIndex = nodes.findIndex(node =>
-          node === startContainer || node.contains(startContainer)
-        );
-        if (currentNodeIndex > 0) {
-          const prevNode = nodes[currentNodeIndex - 1];
-          if (prevNode.nodeType === Node.TEXT_NODE) {
-            const textBefore = prevNode.textContent.trim();
-            const operatorPattern = /[+\-*/]\s*$/;
-            if (operatorPattern.test(textBefore)) {
-              numeratorText = '';
-            } else {
-              numeratorText = textBefore;
-              prevNode.remove();
+          const operators = ['+', '-', '*', '/'];
+          let lastOperatorIndex = -1;
+          
+          for (const op of operators) {
+            const index = textBeforeCursor.lastIndexOf(op);
+            if (index > lastOperatorIndex) {
+              lastOperatorIndex = index;
             }
+          }
+          
+          if (lastOperatorIndex !== -1) {
+            numeratorText = textBeforeCursor.substring(lastOperatorIndex + 1);
+            textToPreserve = textBeforeCursor.substring(0, lastOperatorIndex + 1);
+          } else {
+            numeratorText = textBeforeCursor;
+            textToPreserve = '';
           }
         }
       }
+      
+      const textAfterCursor = fullText.substring(startOffset);
+      
+      startContainer.textContent = '';
+      
+      if (textToPreserve) {
+        const preservedTextNode = document.createTextNode(textToPreserve);
+        startContainer.parentNode.insertBefore(preservedTextNode, startContainer);
+      }
+      
+      const fractionElement = createFractionElement(numeratorText.trim());
+      
+      startContainer.parentNode.insertBefore(fractionElement, startContainer);
+      
+      if (textAfterCursor) {
+        const afterCursorNode = document.createTextNode(textAfterCursor);
+        startContainer.parentNode.insertBefore(afterCursorNode, startContainer);
+      }
+      
+      if (!startContainer.textContent) {
+        startContainer.remove();
+      }
+      
+      if (numeratorText.trim()) {
+        fractionElement.querySelector('.denominator').focus();
+      } else {
+        fractionElement.querySelector('.numerator').focus();
+      }
+    } else {
+      const fractionElement = createFractionElement('');
+      range.deleteContents();
+      range.insertNode(fractionElement);
+      fractionElement.querySelector('.numerator').focus();
     }
-    insertFraction(numeratorText);
   }
 };
 
@@ -206,11 +276,28 @@ const setupFractionEvents = (numerator, denominator) => {
       const otherContent = otherElement.textContent.trim();
 
       if (otherContent) {
-        const textNode = document.createTextNode(otherContent);
-        fraction.parentNode.replaceChild(textNode, fraction);
+        const fraction = element.closest('.fraction');
+        const prevSibling = fraction.previousSibling;
+        const nextSibling = fraction.nextSibling;
+
+        let targetTextNode;
+
+        if (prevSibling && prevSibling.nodeType === Node.TEXT_NODE) {
+          targetTextNode = prevSibling;
+          targetTextNode.textContent += otherContent;
+        } else if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+          targetTextNode = nextSibling;
+          targetTextNode.textContent = otherContent + targetTextNode.textContent;
+        } else {
+          targetTextNode = document.createTextNode(otherContent);
+          fraction.parentNode.insertBefore(targetTextNode, fraction);
+        }
+
+        fraction.remove();
+
         const selection = window.getSelection();
         const range = document.createRange();
-        range.setStartAfter(textNode);
+        range.setStart(targetTextNode, targetTextNode.textContent.length);
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
