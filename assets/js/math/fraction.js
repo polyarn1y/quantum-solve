@@ -1,113 +1,6 @@
 import { inputField } from "../constants.js";
 import { updatePlaceholderVisibility } from "../utils.js";
-
-const handleInputFieldBackspace = (e) => {
-  if (e.key === 'Backspace') {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const startContainer = range.startContainer;
-      const startOffset = range.startOffset;
-
-      const selectedFraction = inputField.querySelector('.fraction.selected');
-      if (selectedFraction) {
-        e.preventDefault();
-        const parent = selectedFraction.parentNode;
-        const nextSibling = selectedFraction.nextSibling;
-        selectedFraction.remove();
-        const newRange = document.createRange();
-        if (nextSibling) {
-          newRange.setStartBefore(nextSibling);
-        } else if (parent) {
-          newRange.setStart(parent, parent.childNodes.length);
-        } else {
-          newRange.setStart(inputField, 0);
-        }
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        return;
-      }
-
-      if (
-        startContainer.nodeType === Node.TEXT_NODE &&
-        startContainer.parentNode === inputField &&
-        startOffset > 0
-      ) {
-        return;
-      }
-
-      if (startContainer === inputField) {
-        const nodes = Array.from(inputField.childNodes);
-        if (startOffset > 0) {
-          const prevNode = nodes[startOffset - 1];
-          if (prevNode.nodeType === Node.TEXT_NODE) {
-            e.preventDefault();
-            if (prevNode.textContent.length > 0) {
-              prevNode.textContent = prevNode.textContent.slice(0, -1);
-              const newRange = document.createRange();
-              newRange.setStart(prevNode, prevNode.textContent.length);
-              newRange.collapse(true);
-              selection.removeAllRanges();
-              selection.addRange(newRange);
-            } else {
-              prevNode.remove();
-              const newRange = document.createRange();
-              newRange.setStart(inputField, startOffset - 1);
-              newRange.collapse(true);
-              selection.removeAllRanges();
-              selection.addRange(newRange);
-            }
-            return;
-          }
-        }
-      }
-
-      let prevFraction = null;
-      if (startContainer === inputField) {
-        const nodes = Array.from(inputField.childNodes);
-        for (let i = startOffset - 1; i >= 0; i--) {
-          if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('fraction')) {
-            prevFraction = nodes[i];
-            break;
-          }
-        }
-      }
-
-      if (prevFraction) {
-        e.preventDefault();
-        const numerator = prevFraction.querySelector('.numerator');
-        const denominator = prevFraction.querySelector('.denominator');
-        const numeratorContent = numerator.textContent.trim();
-        const denominatorContent = denominator.textContent.trim();
-
-        if (numeratorContent || denominatorContent) {
-          moveFocus(denominator, 'end');
-        } else {
-          const allFractions = inputField.querySelectorAll('.fraction');
-          allFractions.forEach(f => {
-            f.classList.remove('selected');
-            f.dataset.selected = 'false';
-          });
-          prevFraction.classList.add('selected');
-          prevFraction.dataset.selected = 'true';
-          const newRange = document.createRange();
-          newRange.selectNode(prevFraction);
-          selection.removeAllRanges();
-          selection.addRange(newRange);
-        }
-        return;
-      }
-    }
-  }
-};
-
-inputField.addEventListener('keydown', handleInputFieldBackspace);
-
-inputField.addEventListener('keydown', (event) => {
-  handleSlashKey(event);
-  updatePlaceholderVisibility();
-});
+import { getSelection, isAtEnd, isAtStart, moveFocus } from "./inputFieldBackspaceHandler.js";
 
 const FRACTION_TEMPLATE = `
   <span class="fraction" contenteditable="false">
@@ -255,6 +148,11 @@ export const handleSlashKey = (event) => {
   }
 };
 
+inputField.addEventListener('keydown', (event) => {
+  handleSlashKey(event);
+  updatePlaceholderVisibility();
+});
+
 const setupFractionEvents = (numerator, denominator) => {
   const fraction = numerator.closest('.fraction');
 
@@ -291,6 +189,7 @@ const setupFractionEvents = (numerator, denominator) => {
         selection.removeAllRanges();
         selection.addRange(range);
       } else if (fraction.dataset.selected === 'true') {
+        e.preventDefault();
         const parent = fraction.parentNode;
         const nextSibling = fraction.nextSibling;
         fraction.remove();
@@ -323,6 +222,11 @@ const setupFractionEvents = (numerator, denominator) => {
     }
   };
 
+  const removeSelection = () => {
+    fraction.classList.remove('selected');
+    fraction.dataset.selected = 'false';
+  };
+
   numerator.addEventListener('keydown', (e) => {
     if (e.key === 'Backspace') {
       handleBackspace(numerator, e);
@@ -332,10 +236,9 @@ const setupFractionEvents = (numerator, denominator) => {
         e.preventDefault();
         moveFocus(denominator, 0);
       }
-    }
-    if (e.key !== 'Backspace') {
-      fraction.classList.remove('selected');
-      fraction.dataset.selected = 'false';
+      removeSelection();
+    } else if (e.key !== 'Backspace') {
+      removeSelection();
     }
   });
 
@@ -348,90 +251,15 @@ const setupFractionEvents = (numerator, denominator) => {
         e.preventDefault();
         moveFocus(numerator, 'end');
       }
-    }
-    if (e.key !== 'Backspace') {
-      fraction.classList.remove('selected');
-      fraction.dataset.selected = 'false';
+      removeSelection();
+    } else if (e.key !== 'Backspace') {
+      removeSelection();
     }
   });
 
   document.addEventListener('click', (e) => {
     if (!fraction.contains(e.target)) {
-      fraction.classList.remove('selected');
-      fraction.dataset.selected = 'false';
+      removeSelection();
     }
   });
-};
-
-const getSelection = () => {
-  const selection = window.getSelection();
-  return {
-    selection: selection.rangeCount > 0 ? selection : null,
-    range: selection.rangeCount > 0 ? selection.getRangeAt(0) : null
-  };
-};
-
-const isAtEnd = (range, element) =>
-  range.endContainer === element
-    ? range.endOffset === element.childNodes.length
-    : range.endContainer.nodeType === Node.TEXT_NODE
-      && range.endOffset === range.endContainer.textContent.length
-      && !range.endContainer.nextSibling;
-
-const isAtStart = (range, element) =>
-  range.startContainer === element
-    ? range.startOffset === 0
-    : range.startContainer.nodeType === Node.TEXT_NODE
-      && range.startOffset === 0
-      && !range.startContainer.previousSibling;
-
-const moveFocus = (target, position) => {
-  target.focus();
-  const selection = window.getSelection();
-  const newRange = document.createRange();
-
-  if (position === 'end') {
-    if (target.childNodes.length === 0) {
-      newRange.setStart(target, 0);
-    } else if (target.firstChild.nodeType === Node.TEXT_NODE) {
-      newRange.setStart(target.firstChild, target.firstChild.textContent.length);
-    } else {
-      newRange.selectNodeContents(target);
-      newRange.collapse(false);
-    }
-  } else {
-    newRange.setStart(target, position);
-  }
-
-  newRange.collapse(true);
-  selection.removeAllRanges();
-  selection.addRange(newRange);
-};
-
-export function parseFractions(forDisplay = false) {
-  let expression = '';
-  const nodes = inputField.childNodes;
-
-  nodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      expression += node.textContent;
-    } else if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('fraction')) {
-      const numerator = node.querySelector('.numerator').textContent.trim();
-      const denominator = node.querySelector('.denominator').textContent.trim();
-      if (numerator && denominator) {
-        const hasOperators = (str) => /[+\-*/]/.test(str);
-        const formattedNumerator = hasOperators(numerator) ? `(${numerator})` : numerator;
-        const formattedDenominator = hasOperators(denominator) ? `(${denominator})` : denominator;
-        const fractionPart = `${formattedNumerator}/${formattedDenominator}`;
-        if (forDisplay) {
-          expression += `(${fractionPart})`;
-        } else {
-          expression += `(${formattedNumerator}/${formattedDenominator})`;
-        }
-      } else {
-        throw new Error('Числитель или знаменатель дроби пустой');
-      }
-    }
-  });
-  return expression.trim();
 };
