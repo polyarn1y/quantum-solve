@@ -2,21 +2,13 @@ import { inputField } from "../constants.js";
 import { updatePlaceholderVisibility } from "../utils.js";
 
 const handleInputFieldBackspace = (e) => {
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-    const allFractions = inputField.querySelectorAll('.fraction');
-    allFractions.forEach(f => {
-      f.classList.remove('selected');
-      f.dataset.selected = 'false';
-    });
-    return;
-  }
-
   if (e.key === 'Backspace') {
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const startContainer = range.startContainer;
       const startOffset = range.startOffset;
+
       const selectedFraction = inputField.querySelector('.fraction.selected');
       if (selectedFraction) {
         e.preventDefault();
@@ -36,6 +28,7 @@ const handleInputFieldBackspace = (e) => {
         selection.addRange(newRange);
         return;
       }
+
       if (
         startContainer.nodeType === Node.TEXT_NODE &&
         startContainer.parentNode === inputField &&
@@ -43,6 +36,33 @@ const handleInputFieldBackspace = (e) => {
       ) {
         return;
       }
+
+      if (startContainer === inputField) {
+        const nodes = Array.from(inputField.childNodes);
+        if (startOffset > 0) {
+          const prevNode = nodes[startOffset - 1];
+          if (prevNode.nodeType === Node.TEXT_NODE) {
+            e.preventDefault();
+            if (prevNode.textContent.length > 0) {
+              prevNode.textContent = prevNode.textContent.slice(0, -1);
+              const newRange = document.createRange();
+              newRange.setStart(prevNode, prevNode.textContent.length);
+              newRange.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+            } else {
+              prevNode.remove();
+              const newRange = document.createRange();
+              newRange.setStart(inputField, startOffset - 1);
+              newRange.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+            }
+            return;
+          }
+        }
+      }
+
       let prevFraction = null;
       if (startContainer === inputField) {
         const nodes = Array.from(inputField.childNodes);
@@ -52,46 +72,21 @@ const handleInputFieldBackspace = (e) => {
             break;
           }
         }
-      } else if (
-        startContainer.nodeType === Node.TEXT_NODE &&
-        startContainer.parentNode === inputField
-      ) {
-        const nodes = Array.from(inputField.childNodes);
-        const currentNodeIndex = nodes.findIndex(
-          (node) => node === startContainer || node.contains(startContainer)
-        );
-        if (startOffset === 0 && currentNodeIndex >= 0) {
-          const prevNode = nodes[currentNodeIndex - 1];
-          if (prevNode && prevNode.classList && prevNode.classList.contains('fraction')) {
-            prevFraction = prevNode;
-          }
-        }
-      } else if (startContainer.closest && startContainer.closest('.fraction')) {
-        prevFraction = startContainer.closest('.fraction');
       }
 
       if (prevFraction) {
         e.preventDefault();
-        const numerator = prevFraction.querySelector('.numerator');
-        const denominator = prevFraction.querySelector('.denominator');
-        const numeratorContent = numerator.textContent.trim();
-        const denominatorContent = denominator.textContent.trim();
-
-        if (numeratorContent || denominatorContent) {
-          moveFocus(denominator, 'end');
-        } else {
-          const allFractions = inputField.querySelectorAll('.fraction');
-          allFractions.forEach(f => {
-            f.classList.remove('selected');
-            f.dataset.selected = 'false';
-          });
-          prevFraction.classList.add('selected');
-          prevFraction.dataset.selected = 'true';
-          const newRange = document.createRange();
-          newRange.selectNode(prevFraction);
-          selection.removeAllRanges();
-          selection.addRange(newRange);
-        }
+        const allFractions = inputField.querySelectorAll('.fraction');
+        allFractions.forEach(f => {
+          f.classList.remove('selected');
+          f.dataset.selected = 'false';
+        });
+        prevFraction.classList.add('selected');
+        prevFraction.dataset.selected = 'true';
+        const newRange = document.createRange();
+        newRange.selectNode(prevFraction);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
         return;
       }
     }
@@ -154,21 +149,6 @@ export const insertFraction = (numeratorText) => {
   } else {
     numerator.focus();
   }
-};
-
-const findMatchingOpenParen = (text, closeParenIndex) => {
-  let openParenCount = 0;
-  for (let i = closeParenIndex; i >= 0; i--) {
-    if (text[i] === ')') {
-      openParenCount++;
-    } else if (text[i] === '(') {
-      openParenCount--;
-      if (openParenCount === 0) {
-        return i;
-      }
-    }
-  }
-  return -1;
 };
 
 export const handleSlashKey = (event) => {
