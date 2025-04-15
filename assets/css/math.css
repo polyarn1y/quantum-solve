@@ -1,3 +1,7 @@
+.selected {
+  background-color: rgba(255, 174, 0, 0.3);
+}
+/* Fraction */
 .fraction {
   display: inline-flex;
   flex-direction: column;
@@ -5,10 +9,6 @@
   font-size: clamp(13px, 2vw, 18px);
   vertical-align: middle;
   margin: 0 1px;
-}
-
-.fraction.selected, .power.selected {
-  background-color: rgba(255, 174, 0, 0.3);
 }
 
 .numerator, .denominator {
@@ -48,7 +48,7 @@
   padding: 0;
   background-color: transparent;
 }
-
+/* Power */
 .power {
   display: inline-flex;
   vertical-align: middle;
