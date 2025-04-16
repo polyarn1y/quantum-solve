@@ -4,6 +4,7 @@ const handleInputFieldBackspace = (e) => {
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     const selectedFraction = inputField.querySelector('.fraction.selected');
     const selectedPower = inputField.querySelector('.power.selected');
+    const selectedSqrt = inputField.querySelector('.sqrt.selected');
     if (selectedFraction) {
       selectedFraction.classList.remove('selected');
       selectedFraction.dataset.selected = 'false';
@@ -11,6 +12,10 @@ const handleInputFieldBackspace = (e) => {
     if (selectedPower) {
       selectedPower.classList.remove('selected');
       selectedPower.dataset.selected = 'false';
+    }
+    if (selectedSqrt) {
+      selectedSqrt.classList.remove('selected');
+      selectedSqrt.dataset.selected = 'false';
     }
     return;
   }
@@ -24,6 +29,7 @@ const handleInputFieldBackspace = (e) => {
 
       const selectedFraction = inputField.querySelector('.fraction.selected');
       const selectedPower = inputField.querySelector('.power.selected');
+      const selectedSqrt = inputField.querySelector('.sqrt.selected');
       
       if (selectedFraction) {
         e.preventDefault();
@@ -48,6 +54,24 @@ const handleInputFieldBackspace = (e) => {
         const parent = selectedPower.parentNode;
         const nextSibling = selectedPower.nextSibling;
         selectedPower.remove();
+        const newRange = document.createRange();
+        if (nextSibling) {
+          newRange.setStartBefore(nextSibling);
+        } else if (parent) {
+          newRange.setStart(parent, parent.childNodes.length);
+        } else {
+          newRange.setStart(inputField, 0);
+        }
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        return;
+      }
+      if (selectedSqrt) {
+        e.preventDefault();
+        const parent = selectedSqrt.parentNode;
+        const nextSibling = selectedSqrt.nextSibling;
+        selectedSqrt.remove();
         const newRange = document.createRange();
         if (nextSibling) {
           newRange.setStartBefore(nextSibling);
@@ -98,6 +122,7 @@ const handleInputFieldBackspace = (e) => {
 
       let prevPower = null;
       let prevFraction = null;
+      let prevSqrt = null;
       if (startContainer === inputField) {
         const nodes = Array.from(inputField.childNodes);
         for (let i = startOffset - 1; i >= 0; i--) {
@@ -106,6 +131,9 @@ const handleInputFieldBackspace = (e) => {
             break;
           } else if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('fraction')) {
             prevFraction = nodes[i];
+            break;
+          } else if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('sqrt')) {
+            prevSqrt = nodes[i];
             break;
           }
         }
@@ -155,6 +183,29 @@ const handleInputFieldBackspace = (e) => {
           prevFraction.dataset.selected = 'true';
           const newRange = document.createRange();
           newRange.selectNode(prevFraction);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+        return;
+      }
+
+      if (prevSqrt) {
+        e.preventDefault();
+        const content = prevSqrt.querySelector('.sqrt-content');
+        const contentText = content.textContent.trim();
+
+        if (contentText) {
+          moveFocus(content, 'end');
+        } else {
+          const allSqrt = inputField.querySelectorAll('.sqrt');
+          allSqrt.forEach(s => {
+            s.classList.remove('selected');
+            s.dataset.selected = 'false';
+          });
+          prevSqrt.classList.add('selected');
+          prevSqrt.dataset.selected = 'true';
+          const newRange = document.createRange();
+          newRange.selectNode(prevSqrt);
           selection.removeAllRanges();
           selection.addRange(newRange);
         }

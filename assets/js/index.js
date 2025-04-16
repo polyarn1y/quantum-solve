@@ -9,10 +9,10 @@ addGlobalEventListeners();
 export function solve() {
   try {
     hide(errorContainer);
-    const hasCustomElements = inputField.querySelectorAll('.fraction, .power').length > 0;
+    const hasCustomElements = inputField.querySelectorAll('.fraction, .power, .sqrt').length > 0;
     let expression = hasCustomElements ? parseExpression() : inputField.textContent.trim();
-
-    const isComplex = /[i]/.test(expression);
+    console.log(hasCustomElements)
+    const isComplex = /(?<![a-zA-Z])[i](?![a-zA-Z])/.test(expression);
     let result;
     if (isComplex) {
       result = evaluateComplexExpression(expression);

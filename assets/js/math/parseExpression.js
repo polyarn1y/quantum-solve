@@ -39,6 +39,18 @@ function parseNode(node, forDisplay = false, isNested = false) {
       } else {
         throw new Error('Основание или показатель степени пустой');
       }
+    } else if (node.classList.contains('sqrt')) {
+      console.log('sqrt')
+      const content = node.querySelector('.sqrt-content');
+      const contentText = parseNode(content, forDisplay, true).trim();
+
+      if (contentText) {
+        const hasOperators = (str) => /[+\-*/]/.test(str);
+        const formattedContent = hasOperators(contentText) ? `(${contentText})` : contentText;
+        return forDisplay ? `√${formattedContent}` : `sqrt(${formattedContent})`;
+      } else {
+        throw new Error('Содержимое квадратного корня пустое');
+      }
     }
   }
 
