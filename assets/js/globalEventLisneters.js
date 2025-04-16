@@ -12,6 +12,7 @@ import { toggle, updatePlaceholderVisibility } from "./utils.js";
 import { insertFraction } from "./math/fraction.js";
 import { insertPower } from "./math/power.js";
 import { insertSqrt } from "./math/sqrt.js";
+import { insertCbrt } from "./math/cbrt.js";
 import { removeLoader } from './loader.js';
 
 const handleSolve = (expression) => solve(expression.trim());
@@ -90,6 +91,7 @@ const actionHandlers = {
   fraction: insertFraction,
   power: insertPower,
   sqrt: insertSqrt,
+  cube: insertCbrt,
 };
 
 const handleMathKeyClick = (action) => {

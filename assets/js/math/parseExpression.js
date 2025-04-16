@@ -51,6 +51,20 @@ function parseNode(node, forDisplay = false, isNested = false) {
       } else {
         throw new Error('Содержимое квадратного корня пустое');
       }
+    } else if (node.classList.contains('cbrt')) {
+      const content = node.querySelector('.cbrt-content');
+      const contentText = parseNode(content, forDisplay, true).trim();
+
+      if (contentText) {
+        const hasOperators = (str) => /[+\-*/]/.test(str);
+        const formattedContent = hasOperators(contentText) || contentText.includes('^') || contentText.includes('/') ? `(${contentText})` : contentText;
+        const cbrtPart = forDisplay ? `∛${formattedContent}` : `cbrt(${formattedContent})`;
+        const result = isNested ? cbrtPart : `(${cbrtPart})`;
+        console.log(`Cbrt result: ${result}`);
+        return result;
+      } else {
+        throw new Error('Содержимое кубического корня пустое');
+      }
     }
   }
 

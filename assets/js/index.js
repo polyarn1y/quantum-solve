@@ -9,9 +9,9 @@ addGlobalEventListeners();
 export function solve() {
   try {
     hide(errorContainer);
-    const hasCustomElements = inputField.querySelectorAll('.fraction, .power, .sqrt').length > 0;
+    const hasCustomElements = inputField.querySelectorAll('.fraction, .power, .sqrt, .cbrt').length > 0;
     let expression = hasCustomElements ? parseExpression() : inputField.textContent.trim();
-    console.log(hasCustomElements)
+    
     const isComplex = /(?<![a-zA-Z])[i](?![a-zA-Z])/.test(expression);
     let result;
     if (isComplex) {
@@ -26,7 +26,7 @@ export function solve() {
         .replace(/exp\(([^)]+)\)/g, "Math.exp($1)")
         .replace(/log\(([^)]+)\)/g, "Math.log($1)")
         .replace(/sqrt\(([^)]+)\)/g, "Math.sqrt($1)")
-        .replace(/\^/g, '**');
+        .replace(/cbrt\(([^)]+)\)/g, "Math.cbrt($1)");
 
       result = eval(evalExpression);
       if (result === Infinity || result === -Infinity) {

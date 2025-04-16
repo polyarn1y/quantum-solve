@@ -5,6 +5,7 @@ const handleInputFieldBackspace = (e) => {
     const selectedFraction = inputField.querySelector('.fraction.selected');
     const selectedPower = inputField.querySelector('.power.selected');
     const selectedSqrt = inputField.querySelector('.sqrt.selected');
+    const selectedCbrt = inputField.querySelector('.cbrt.selected');
     if (selectedFraction) {
       selectedFraction.classList.remove('selected');
       selectedFraction.dataset.selected = 'false';
@@ -16,6 +17,10 @@ const handleInputFieldBackspace = (e) => {
     if (selectedSqrt) {
       selectedSqrt.classList.remove('selected');
       selectedSqrt.dataset.selected = 'false';
+    }
+    if (selectedCbrt) {
+      selectedCbrt.classList.remove('selected');
+      selectedCbrt.dataset.selected = 'false';
     }
     return;
   }
@@ -30,6 +35,7 @@ const handleInputFieldBackspace = (e) => {
       const selectedFraction = inputField.querySelector('.fraction.selected');
       const selectedPower = inputField.querySelector('.power.selected');
       const selectedSqrt = inputField.querySelector('.sqrt.selected');
+      const selectedCbrt = inputField.querySelector('.cbrt.selected');
       
       if (selectedFraction) {
         e.preventDefault();
@@ -85,6 +91,24 @@ const handleInputFieldBackspace = (e) => {
         selection.addRange(newRange);
         return;
       }
+      if (selectedCbrt) {
+        e.preventDefault();
+        const parent = selectedCbrt.parentNode;
+        const nextSibling = selectedCbrt.nextSibling;
+        selectedCbrt.remove();
+        const newRange = document.createRange();
+        if (nextSibling) {
+          newRange.setStartBefore(nextSibling);
+        } else if (parent) {
+          newRange.setStart(parent, parent.childNodes.length);
+        } else {
+          newRange.setStart(inputField, 0);
+        }
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        return;
+      }
 
       if (
         startContainer.nodeType === Node.TEXT_NODE &&
@@ -123,6 +147,7 @@ const handleInputFieldBackspace = (e) => {
       let prevPower = null;
       let prevFraction = null;
       let prevSqrt = null;
+      let prevCbrt = null;
       if (startContainer === inputField) {
         const nodes = Array.from(inputField.childNodes);
         for (let i = startOffset - 1; i >= 0; i--) {
@@ -134,6 +159,9 @@ const handleInputFieldBackspace = (e) => {
             break;
           } else if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('sqrt')) {
             prevSqrt = nodes[i];
+            break;
+          } else if (nodes[i] && nodes[i].classList && nodes[i].classList.contains('cbrt')) {
+            prevCbrt = nodes[i];
             break;
           }
         }
@@ -206,6 +234,29 @@ const handleInputFieldBackspace = (e) => {
           prevSqrt.dataset.selected = 'true';
           const newRange = document.createRange();
           newRange.selectNode(prevSqrt);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+        return;
+      }
+
+      if (prevCbrt) {
+        e.preventDefault();
+        const content = prevCbrt.querySelector('.cbrt-content');
+        const contentText = content.textContent.trim();
+
+        if (contentText) {
+          moveFocus(content, 'end');
+        } else {
+          const allCbrt = inputField.querySelectorAll('.cbrt');
+          allCbrt.forEach(s => {
+            s.classList.remove('selected');
+            s.dataset.selected = 'false';
+          });
+          prevCbrt.classList.add('selected');
+          prevCbrt.dataset.selected = 'true';
+          const newRange = document.createRange();
+          newRange.selectNode(prevCbrt);
           selection.removeAllRanges();
           selection.addRange(newRange);
         }
