@@ -51,6 +51,7 @@ body {
   padding: 8px 12px;
   border-radius: 7px;
   width: 100%;
+  font-family: var(--input-font);
   line-height: 2;
   min-height: 44px;
   font-size: clamp(13px, 2vw, 18px);
@@ -117,6 +118,11 @@ body {
   display: flex;
   align-items: center;
   margin-top: 11px;
+  justify-content: space-between;
+}
+
+.toolbar-buttons__wrapper {
+  display: inherit;
   gap: 11px;
 }
 
@@ -184,6 +190,22 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: 0.3s;
+}
+
+.mathInput-switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mathInput-switch__button {
+  width: 18px;
+  height: 18px;
+}
+
+.mathInput-switch__button img {
+  width: 18px;
+  height: 18px;
 }
 
 .mathInput__key:hover, .keyboard__key:hover {
