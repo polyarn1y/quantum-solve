@@ -75,7 +75,7 @@ body {
   display: none;
   position: absolute;
   top: 50%;
-  left: 15px;
+  left: 13px;
   transform: translateY(-50%);
   color: var(--muted-text-color);
   user-select: none;
