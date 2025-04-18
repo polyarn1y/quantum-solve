@@ -13,14 +13,14 @@ function parseNode(node, forDisplay = false, isNested = false) {
       const denominatorContent = parseNode(denominator, forDisplay, true).trim();
 
       if (numeratorContent && denominatorContent) {
-        const hasOperators = (str) => /[+\-*/]/.test(str);
-        const formattedNumerator = hasOperators(numeratorContent) && !isNested ? `(${numeratorContent})` : numeratorContent;
-        const formattedDenominator = hasOperators(denominatorContent) && !isNested ? `(${denominatorContent})` : denominatorContent;
+        const hasOperators = (str) => /[+\-*^]/.test(str);
+        const needsParens = (str) => hasOperators(str) || str.includes('/');
+
+        const formattedNumerator = needsParens(numeratorContent) ? `(${numeratorContent})` : numeratorContent;
+        const formattedDenominator = needsParens(denominatorContent) ? `(${denominatorContent})` : denominatorContent;
+
         const fractionPart = `${formattedNumerator}/${formattedDenominator}`;
-        if (isNested) {
-          return fractionPart;
-        }
-        return forDisplay ? `(${fractionPart})` : `(${formattedNumerator}/${formattedDenominator})`;
+        return isNested ? fractionPart : `(${fractionPart})`;
       } else {
         throw new Error('Числитель или знаменатель дроби пустой');
       }
@@ -40,7 +40,6 @@ function parseNode(node, forDisplay = false, isNested = false) {
         throw new Error('Основание или показатель степени пустой');
       }
     } else if (node.classList.contains('sqrt')) {
-      console.log('sqrt')
       const content = node.querySelector('.sqrt-content');
       const contentText = parseNode(content, forDisplay, true).trim();
 
@@ -60,7 +59,6 @@ function parseNode(node, forDisplay = false, isNested = false) {
         const formattedContent = hasOperators(contentText) || contentText.includes('^') || contentText.includes('/') ? `(${contentText})` : contentText;
         const cbrtPart = forDisplay ? `∛${formattedContent}` : `cbrt(${formattedContent})`;
         const result = isNested ? cbrtPart : `(${cbrtPart})`;
-        console.log(`Cbrt result: ${result}`);
         return result;
       } else {
         throw new Error('Содержимое кубического корня пустое');
