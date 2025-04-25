@@ -34,7 +34,7 @@ function parseNode(node, forDisplay = false, isNested = false) {
         const hasOperators = (str) => /[+\-*/]/.test(str);
         const formattedBase = baseContent.includes('/') ? `(${baseContent})` : (hasOperators(baseContent) && !baseContent.includes('/') ? `(${baseContent})` : baseContent);
         const formattedExponent = hasOperators(exponentContent) ? `(${exponentContent})` : exponentContent;
-        const powerPart = `${formattedBase}^${formattedExponent}`;
+        const powerPart = `${formattedBase}**${formattedExponent}`;
         return forDisplay ? `(${powerPart})` : `(${powerPart})`;
       } else {
         throw new Error('Основание или показатель степени пустой');
