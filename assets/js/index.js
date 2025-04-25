@@ -6,12 +6,59 @@ import { parseExpression } from "./math/parseExpression.js";
 
 addGlobalEventListeners();
 
+function replaceMathFunctions(expression) {
+  let result = expression;
+  let startIndex = 0;
+
+  while (startIndex < result.length) {
+    let sqrtIndex = result.indexOf('sqrt(', startIndex);
+    let cbrtIndex = result.indexOf('cbrt(', startIndex);
+
+    let funcIndex = -1;
+    let funcName = '';
+    if (sqrtIndex !== -1 && (cbrtIndex === -1 || sqrtIndex < cbrtIndex)) {
+      funcIndex = sqrtIndex;
+      funcName = 'sqrt';
+    } else if (cbrtIndex !== -1) {
+      funcIndex = cbrtIndex;
+      funcName = 'cbrt';
+    }
+
+    if (funcIndex === -1) {
+      break;
+    }
+
+    let openParens = 1;
+    let contentStart = funcIndex + funcName.length + 1;
+    let contentEnd = contentStart;
+
+    while (contentEnd < result.length && openParens > 0) {
+      if (result[contentEnd] === '(') openParens++;
+      if (result[contentEnd] === ')') openParens--;
+      contentEnd++;
+    }
+
+    if (openParens !== 0) {
+      throw new Error("Несбалансированные скобки в выражении");
+    }
+
+    let innerContent = result.substring(contentStart, contentEnd - 1);
+    let replacedInner = replaceMathFunctions(innerContent);
+    let replacement = funcName === 'sqrt' ? `Math.sqrt(${replacedInner})` : `Math.cbrt(${replacedInner})`;
+
+    result = result.substring(0, funcIndex) + replacement + result.substring(contentEnd);
+    startIndex = funcIndex + replacement.length;
+  }
+
+  return result;
+}
+
 export function solve() {
   try {
     hide(errorContainer);
     const hasCustomElements = inputField.querySelectorAll('.fraction, .power, .sqrt, .cbrt').length > 0;
     let expression = hasCustomElements ? parseExpression() : inputField.textContent.trim();
-    
+
     const isComplex = /(?<![a-zA-Z])[i](?![a-zA-Z])/.test(expression);
     let result;
     if (isComplex) {
@@ -24,9 +71,9 @@ export function solve() {
         .replace(/cos\(([^)]+)\)/g, "Math.cos($1)")
         .replace(/tan\(([^)]+)\)/g, "Math.tan($1)")
         .replace(/exp\(([^)]+)\)/g, "Math.exp($1)")
-        .replace(/log\(([^)]+)\)/g, "Math.log($1)")
-        .replace(/sqrt\(([^)]+)\)/g, "Math.sqrt($1)")
-        .replace(/cbrt\(([^)]+)\)/g, "Math.cbrt($1)");
+        .replace(/log\(([^)]+)\)/g, "Math.log($1)");
+
+      evalExpression = replaceMathFunctions(evalExpression);
 
       result = eval(evalExpression);
       if (result === Infinity || result === -Infinity) {
@@ -38,7 +85,7 @@ export function solve() {
     const queryString = hasCustomElements
       ? parseExpression(true)
       : inputField.textContent;
-    querySpan.textContent = queryString.replace(/\*/g, '×');
+    querySpan.textContent = queryString.replace(/\*\*/g, '^');
 
     if (result instanceof Complex) {
       outputSpan.textContent = result.toString();
