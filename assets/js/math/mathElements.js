@@ -11,12 +11,12 @@ const TEMPLATES = {
     </span>
   `.trim(),
   sqrt: `
-    <span class="sqrt" contenteditable="false">
-      <span class="sqrt-symbol" contenteditable="false">
+  <span class="sqrt" contenteditable="false">
+    <span class="sqrt-symbol" contenteditable="false">
         <img src="assets/images/math/root_symbol.svg" alt="">
-      </span>
-      <span class="sqrt-content" contenteditable="true"></span>
     </span>
+    <span class="sqrt-content" contenteditable="true"></span>
+  </span>
   `.trim(),
   cbrt: `
     <span class="cbrt" contenteditable="false">
@@ -62,6 +62,51 @@ const ELEMENT_CONFIG = {
   },
 };
 
+const getRootNesting = (element) => {
+  let nestingLevel = 0;
+  let currentElement = element;
+
+  while (currentElement && currentElement !== inputField) {
+    if (currentElement.classList && 
+        (currentElement.classList.contains('sqrt') || currentElement.classList.contains('cbrt'))) {
+      nestingLevel++;
+    }
+    currentElement = currentElement.parentElement;
+  }
+  return nestingLevel;
+};
+
+const getParentRoot = (element) => {
+  let currentElement = element.parentElement;
+
+  while (currentElement && currentElement !== inputField) {
+      if (currentElement.classList && 
+          (currentElement.classList.contains('sqrt') || currentElement.classList.contains('cbrt'))) {
+          return currentElement;
+      }
+      currentElement = currentElement.parentElement;
+  }
+  return null;
+};
+
+const updateRootContentClasses = (field) => {
+  let hasDigit = false;
+  let hasRoot = false;
+
+  field.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE && /\d/.test(node.textContent)) {
+      hasDigit = true;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE && 
+        (node.classList.contains('sqrt') || node.classList.contains('cbrt'))) {
+      hasRoot = true;
+    }
+  });
+
+  field.classList.toggle('has-numbers', hasDigit);
+  field.classList.toggle('has-root', hasRoot);
+};
+
 const createMathElement = (type, content = {}) => {
   const template = document.createElement('span');
   template.innerHTML = TEMPLATES[type];
@@ -81,10 +126,47 @@ const createMathElement = (type, content = {}) => {
       }
     }
     fields[fieldName] = field;
+
+    if ((type === 'sqrt' && fieldName === 'sqrt-content') || (type === 'cbrt' && fieldName === 'cbrt-content')) {
+      let hasRoot = false;
+      if (content[contentKey] && typeof content[contentKey] !== 'string') {
+        if (content[contentKey].classList.contains('sqrt') || content[contentKey].classList.contains('cbrt')) {
+          hasRoot = true;
+        }
+      }
+      if (hasRoot) {
+        field.classList.add('has-root');
+      }
+      if (content[contentKey] && typeof content[contentKey] === 'string' && /\d/.test(content[contentKey])) {
+        field.classList.add('has-numbers');
+      }
+    }
   });
 
   setupMathElementEvents(type, fields);
   return element;
+};
+
+const updateRootSizes = (parentElement) => {
+  const parentRoots = [];
+  let currentParent = parentElement;
+  while (currentParent) {
+    currentParent = getParentRoot(currentParent);
+    if (currentParent) {
+      parentRoots.push(currentParent);
+    }
+  }
+  let rootWidth = 12;
+  let rootHeight = 20;
+  parentRoots.forEach(parentRoot => {
+    const img = parentRoot.querySelector('img');
+    if (img) {
+      img.style.width = `${rootWidth}px`;
+      img.style.height = `${rootHeight}px`;
+      rootWidth += 1;
+      rootHeight += 2;
+    }
+  });
 };
 
 const insertMathElement = (type, content = {}) => {
@@ -111,7 +193,38 @@ const insertMathElement = (type, content = {}) => {
     selection.removeAllRanges();
     selection.addRange(range);
   }
-
+  if (type === 'sqrt' || type === 'cbrt') {
+    let nestingLevel = getRootNesting(element);
+    if (nestingLevel >= 1) {
+        const parentRoots = [];
+        let currentParent = element;
+        while (currentParent) {
+            currentParent = getParentRoot(currentParent);
+            if (currentParent) {
+                parentRoots.push(currentParent);
+            }
+        }
+        let rootWidth = 15;
+        let rootHeight = 22;
+        parentRoots.forEach(parentRoot => {
+            const img = parentRoot.querySelector('img');
+            img.style.width = `${rootWidth}px`;
+            img.style.height = `${rootHeight}px`;
+            rootWidth += 1;
+            rootHeight += 2;
+        });
+    }
+    let currentParent = element;
+    while (currentParent) {
+        currentParent = getParentRoot(currentParent);
+        if (currentParent) {
+            const contentField = currentParent.querySelector('.sqrt-content, .cbrt-content');
+            if (contentField && contentField.classList.contains('has-numbers')) {
+                contentField.classList.add('has-root');
+            }
+        }
+    }
+  } 
   const range = document.createRange();
   range.setStart(focusField, 0);
   range.setEnd(focusField, 0);
@@ -135,9 +248,11 @@ const setupMathElementEvents = (type, fields) => {
   const handleBackspace = (field, e) => {
     if (e.key === 'Backspace' && field.textContent.trim() === '') {
       e.preventDefault();
+      e.stopPropagation();
+  
       let otherContent = '';
       let otherField = null;
-
+  
       if (config.editableFields.length > 1) {
         const otherFieldName = field.classList.contains(config.editableFields[0])
           ? config.editableFields[1]
@@ -145,12 +260,12 @@ const setupMathElementEvents = (type, fields) => {
         otherField = fields[otherFieldName];
         otherContent = otherField.textContent.trim();
       }
-
+  
       if (otherContent) {
         const prevSibling = element.previousSibling;
         const nextSibling = element.nextSibling;
         let targetTextNode;
-
+  
         if (prevSibling && prevSibling.nodeType === Node.TEXT_NODE) {
           targetTextNode = prevSibling;
           targetTextNode.textContent += otherContent;
@@ -161,9 +276,17 @@ const setupMathElementEvents = (type, fields) => {
           targetTextNode = document.createTextNode(otherContent);
           element.parentNode.insertBefore(targetTextNode, element);
         }
-
+  
         element.remove();
-
+  
+        let currentParent = element.parentNode;
+        while (currentParent && currentParent !== inputField) {
+            if (currentParent.classList.contains('sqrt-content') || currentParent.classList.contains('cbrt-content')) {
+                updateRootContentClasses(currentParent);
+            }
+            currentParent = currentParent.parentNode;
+        }
+  
         const selection = window.getSelection();
         const range = document.createRange();
         range.setStart(targetTextNode, targetTextNode.textContent.length);
@@ -173,19 +296,46 @@ const setupMathElementEvents = (type, fields) => {
       } else if (element.dataset.selected === 'true') {
         const parent = element.parentNode;
         const nextSibling = element.nextSibling;
+        const isRoot = element.classList.contains('sqrt') || element.classList.contains('cbrt');
         element.remove();
+  
+        let currentParent = parent;
+        while (currentParent && currentParent !== inputField) {
+            if (currentParent.classList.contains('sqrt-content') || currentParent.classList.contains('cbrt-content')) {
+                updateRootContentClasses(currentParent);
+            }
+            currentParent = currentParent.parentNode;
+        }
+  
+        if (isRoot) {
+          updateRootSizes(parent);
+        }
+  
         const selection = window.getSelection();
         const range = document.createRange();
-        if (nextSibling) {
-          range.setStartBefore(nextSibling);
-        } else if (parent) {
-          range.setStart(parent, parent.childNodes.length);
-        } else {
-          range.setStart(inputField, 0);
+        let targetParent = parent;
+        while (targetParent && targetParent !== inputField) {
+          if (targetParent.classList.contains('sqrt-content') || targetParent.classList.contains('cbrt-content')) {
+            range.setStart(targetParent, targetParent.childNodes.length);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            break;
+          }
+          targetParent = targetParent.parentNode;
         }
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        if (!range.startContainer) {
+          if (nextSibling) {
+            range.setStartBefore(nextSibling);
+          } else if (parent) {
+            range.setStart(parent, parent.childNodes.length);
+          } else {
+            range.setStart(inputField, 0);
+          }
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
       } else {
         const allElements = inputField.querySelectorAll(`.${type}`);
         allElements.forEach(el => {
@@ -199,6 +349,19 @@ const setupMathElementEvents = (type, fields) => {
         range.selectNode(element);
         selection.removeAllRanges();
         selection.addRange(range);
+  
+        let parentContent = element.parentNode;
+        while (parentContent && parentContent !== inputField) {
+          if (parentContent.classList.contains('sqrt-content') || parentContent.classList.contains('cbrt-content')) {
+            const newRange = document.createRange();
+            newRange.setStart(parentContent, parentContent.childNodes.length);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            break;
+          }
+          parentContent = parentContent.parentNode;
+        }
       }
     }
   };
@@ -210,6 +373,10 @@ const setupMathElementEvents = (type, fields) => {
 
   config.editableFields.forEach((fieldName, index) => {
     const field = fields[fieldName];
+    if ((type === 'sqrt' && fieldName === 'sqrt-content') || (type === 'cbrt' && fieldName === 'cbrt-content')) {
+      updateRootContentClasses(field);
+      field.addEventListener('input', () => updateRootContentClasses(field));
+    }
     field.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace') {
         handleBackspace(field, e);
@@ -306,35 +473,42 @@ export const handleSlashKey = (event) => {
     if (rawStartContainer.nodeType === Node.TEXT_NODE) {
       const fullText = rawStartContainer.textContent;
       const textBeforeCursor = fullText.substring(0, startOffset);
+      const textAfterCursor = fullText.substring(startOffset);
+      const numberAfterRegex = textAfterCursor.match(/^\d+/);
+      if (numberAfterRegex) {
+        numeratorText = numberAfterRegex[0];
+        textToPreserve = textBeforeCursor;
+      } else {
+        const operators = ['+', '-', '*', '/'];
+        let lastOperatorIndex = -1;
 
-      if (textBeforeCursor) {
-        const lastOpenParen = textBeforeCursor.lastIndexOf('(');
-        const lastCloseParen = textBeforeCursor.lastIndexOf(')');
-
-        if (lastCloseParen === textBeforeCursor.length - 1 && lastOpenParen !== -1 && lastOpenParen < lastCloseParen) {
-          const matchingOpenParen = findMatchingOpenParen(textBeforeCursor, lastCloseParen);
-          if (matchingOpenParen !== -1) {
-            numeratorText = textBeforeCursor.substring(matchingOpenParen + 1, lastCloseParen);
-            textToPreserve = textBeforeCursor.substring(0, matchingOpenParen);
-          } else {
-            numeratorText = textBeforeCursor;
-            textToPreserve = '';
+        for (const op of operators) {
+          const index = textBeforeCursor.lastIndexOf(op);
+          if (index > lastOperatorIndex) {
+            lastOperatorIndex = index;
           }
-        } else if (lastOpenParen > lastCloseParen && lastOpenParen !== -1) {
-          numeratorText = textBeforeCursor.substring(lastOpenParen + 1);
-          textToPreserve = textBeforeCursor.substring(0, lastOpenParen + 1);
+        }
+
+        if (lastOperatorIndex !== -1 && lastOperatorIndex === textBeforeCursor.length - 1) {
+          numeratorText = '';
+          textToPreserve = textBeforeCursor;
         } else {
-          const operators = ['+', '-', '*', '/'];
-          let lastOperatorIndex = -1;
+          const lastOpenParen = textBeforeCursor.lastIndexOf('(');
+          const lastCloseParen = textBeforeCursor.lastIndexOf(')');
 
-          for (const op of operators) {
-            const index = textBeforeCursor.lastIndexOf(op);
-            if (index > lastOperatorIndex) {
-              lastOperatorIndex = index;
+          if (lastCloseParen === textBeforeCursor.length - 1 && lastOpenParen !== -1 && lastOpenParen < lastCloseParen) {
+            const matchingOpenParen = findMatchingOpenParen(textBeforeCursor, lastCloseParen);
+            if (matchingOpenParen !== -1) {
+              numeratorText = textBeforeCursor.substring(matchingOpenParen + 1, lastCloseParen);
+              textToPreserve = textBeforeCursor.substring(0, matchingOpenParen);
+            } else {
+              numeratorText = textBeforeCursor;
+              textToPreserve = '';
             }
-          }
-
-          if (lastOperatorIndex !== -1) {
+          } else if (lastOpenParen > lastCloseParen && lastOpenParen !== -1) {
+            numeratorText = textBeforeCursor.substring(lastOpenParen + 1);
+            textToPreserve = textBeforeCursor.substring(0, lastOpenParen + 1);
+          } else if (lastOperatorIndex !== -1) {
             numeratorText = textBeforeCursor.substring(lastOperatorIndex + 1);
             textToPreserve = textBeforeCursor.substring(0, lastOperatorIndex + 1);
           } else {
@@ -343,8 +517,6 @@ export const handleSlashKey = (event) => {
           }
         }
       }
-
-      const textAfterCursor = fullText.substring(startOffset);
 
       rawStartContainer.textContent = '';
 
@@ -357,8 +529,14 @@ export const handleSlashKey = (event) => {
       rawStartContainer.parentNode.insertBefore(fractionElement, rawStartContainer);
 
       if (textAfterCursor) {
-        const afterCursorNode = document.createTextNode(textAfterCursor);
-        rawStartContainer.parentNode.insertBefore(afterCursorNode, rawStartContainer);
+        let textToInsert = textAfterCursor;
+        if (numberAfterRegex) {
+          textToInsert = textAfterCursor.substring(numberAfterRegex[0].length);
+        }
+        if (textToInsert) {
+          const afterCursorNode = document.createTextNode(textToInsert);
+          rawStartContainer.parentNode.insertBefore(afterCursorNode, rawStartContainer);
+        }
       }
 
       if (!rawStartContainer.textContent) {
