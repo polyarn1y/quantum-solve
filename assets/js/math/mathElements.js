@@ -472,36 +472,43 @@ export const handleSlashKey = (event) => {
 
     if (rawStartContainer.nodeType === Node.TEXT_NODE) {
       const fullText = rawStartContainer.textContent;
-      constdoorsBeforeCursor = fullText.substring(0, startOffset);
+      const textBeforeCursor = fullText.substring(0, startOffset);
+      const textAfterCursor = fullText.substring(startOffset);
+      const numberAfterRegex = textAfterCursor.match(/^\d+/);
+      if (numberAfterRegex) {
+        numeratorText = numberAfterRegex[0];
+        textToPreserve = textBeforeCursor;
+      } else {
+        const operators = ['+', '-', '*', '/'];
+        let lastOperatorIndex = -1;
 
-      if (textBeforeCursor) {
-        const lastOpenParen = textBeforeCursor.lastIndexOf('(');
-        const lastCloseParen = textBeforeCursor.lastIndexOf(')');
-
-        if (lastCloseParen === textBeforeCursor.length - 1 && lastOpenParen !== -1 && lastOpenParen < lastCloseParen) {
-          const matchingOpenParen = findMatchingOpenParen(textBeforeCursor, lastCloseParen);
-          if (matchingOpenParen !== -1) {
-            numeratorText = textBeforeCursor.substring(matchingOpenParen + 1, lastCloseParen);
-            textToPreserve = textBeforeCursor.substring(0, matchingOpenParen);
-          } else {
-            numeratorText = textBeforeCursor;
-            textToPreserve = '';
+        for (const op of operators) {
+          const index = textBeforeCursor.lastIndexOf(op);
+          if (index > lastOperatorIndex) {
+            lastOperatorIndex = index;
           }
-        } else if (lastOpenParen > lastCloseParen && lastOpenParen !== -1) {
-          numeratorText = textBeforeCursor.substring(lastOpenParen + 1);
-          textToPreserve = textBeforeCursor.substring(0, lastOpenParen + 1);
+        }
+
+        if (lastOperatorIndex !== -1 && lastOperatorIndex === textBeforeCursor.length - 1) {
+          numeratorText = '';
+          textToPreserve = textBeforeCursor;
         } else {
-          const operators = ['+', '-', '*', '/'];
-          let lastOperatorIndex = -1;
+          const lastOpenParen = textBeforeCursor.lastIndexOf('(');
+          const lastCloseParen = textBeforeCursor.lastIndexOf(')');
 
-          for (const op of operators) {
-            const index = textBeforeCursor.lastIndexOf(op);
-            if (index > lastOperatorIndex) {
-              lastOperatorIndex = index;
+          if (lastCloseParen === textBeforeCursor.length - 1 && lastOpenParen !== -1 && lastOpenParen < lastCloseParen) {
+            const matchingOpenParen = findMatchingOpenParen(textBeforeCursor, lastCloseParen);
+            if (matchingOpenParen !== -1) {
+              numeratorText = textBeforeCursor.substring(matchingOpenParen + 1, lastCloseParen);
+              textToPreserve = textBeforeCursor.substring(0, matchingOpenParen);
+            } else {
+              numeratorText = textBeforeCursor;
+              textToPreserve = '';
             }
-          }
-
-          if (lastOperatorIndex !== -1) {
+          } else if (lastOpenParen > lastCloseParen && lastOpenParen !== -1) {
+            numeratorText = textBeforeCursor.substring(lastOpenParen + 1);
+            textToPreserve = textBeforeCursor.substring(0, lastOpenParen + 1);
+          } else if (lastOperatorIndex !== -1) {
             numeratorText = textBeforeCursor.substring(lastOperatorIndex + 1);
             textToPreserve = textBeforeCursor.substring(0, lastOperatorIndex + 1);
           } else {
@@ -510,8 +517,6 @@ export const handleSlashKey = (event) => {
           }
         }
       }
-
-      const textAfterCursor = fullText.substring(startOffset);
 
       rawStartContainer.textContent = '';
 
@@ -524,8 +529,14 @@ export const handleSlashKey = (event) => {
       rawStartContainer.parentNode.insertBefore(fractionElement, rawStartContainer);
 
       if (textAfterCursor) {
-        const afterCursorNode = document.createTextNode(textAfterCursor);
-        rawStartContainer.parentNode.insertBefore(afterCursorNode, rawStartContainer);
+        let textToInsert = textAfterCursor;
+        if (numberAfterRegex) {
+          textToInsert = textAfterCursor.substring(numberAfterRegex[0].length);
+        }
+        if (textToInsert) {
+          const afterCursorNode = document.createTextNode(textToInsert);
+          rawStartContainer.parentNode.insertBefore(afterCursorNode, rawStartContainer);
+        }
       }
 
       if (!rawStartContainer.textContent) {
