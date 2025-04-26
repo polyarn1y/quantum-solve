@@ -148,6 +148,7 @@ const createMathElement = (type, content = {}) => {
 };
 
 const updateRootSizes = (parentElement) => {
+  let nestingLevel = getRootNesting(parentElement);
   const parentRoots = [];
   let currentParent = parentElement;
   while (currentParent) {
@@ -163,8 +164,9 @@ const updateRootSizes = (parentElement) => {
     if (img) {
       img.style.width = `${rootWidth}px`;
       img.style.height = `${rootHeight}px`;
-      rootWidth += 1;
-      rootHeight += 2;
+      rootWidth += 2;
+      rootHeight += 4;
+      if (nestingLevel >= 6) rootWidth += 1;
     }
   });
 };
@@ -204,14 +206,27 @@ const insertMathElement = (type, content = {}) => {
                 parentRoots.push(currentParent);
             }
         }
+        let rootTop = -4;
+        let rootLeft = 0;
+        if (nestingLevel > 3) {
+          rootLeft = -1.2;
+        }
         let rootWidth = 14;
         let rootHeight = 24;
         parentRoots.forEach(parentRoot => {
+            const content = type === 'sqrt' 
+            ? parentRoot.querySelector('.sqrt-content')
+            : parentRoot.querySelector('.cbrt-content');
             const img = parentRoot.querySelector('img');
             img.style.width = `${rootWidth}px`;
             img.style.height = `${rootHeight}px`;
-            rootWidth += 1;
-            rootHeight += 2;
+            content.style.setProperty('--before-left', `${rootLeft}px`);
+            content.style.setProperty('--before-top', `${rootTop}px`);
+            rootLeft -= 0.1;
+            if (nestingLevel >= 6) rootWidth +=1;
+            rootWidth += 2;
+            rootHeight += 4;
+            
         });
     }
     let currentParent = element;
