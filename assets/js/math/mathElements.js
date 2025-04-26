@@ -204,8 +204,8 @@ const insertMathElement = (type, content = {}) => {
                 parentRoots.push(currentParent);
             }
         }
-        let rootWidth = 15;
-        let rootHeight = 22;
+        let rootWidth = 14;
+        let rootHeight = 24;
         parentRoots.forEach(parentRoot => {
             const img = parentRoot.querySelector('img');
             img.style.width = `${rootWidth}px`;
