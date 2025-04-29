@@ -92,19 +92,30 @@ const getParentRoot = (element) => {
 const updateRootContentClasses = (field) => {
   let hasDigit = false;
   let hasRoot = false;
+  let isPowerEmpty = false;
+  let hasExponent = false;
 
   field.childNodes.forEach(node => {
     if (node.nodeType === Node.TEXT_NODE && /\d/.test(node.textContent)) {
       hasDigit = true;
     }
-    if (node.nodeType === Node.ELEMENT_NODE && 
-        (node.classList.contains('sqrt') || node.classList.contains('cbrt'))) {
-      hasRoot = true;
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.classList.contains('sqrt') || node.classList.contains('cbrt')) {
+        hasRoot = true;
+      }
+      if (node.classList.contains('power')) {
+        hasExponent = true;
+        const base = node.querySelector('.base');
+        const exponent = node.querySelector('.exponent');
+        isPowerEmpty = (!base || base.textContent.trim() === '') && (!exponent || exponent.textContent.trim() === ''); 
+      }
     }
   });
 
   field.classList.toggle('has-numbers', hasDigit);
   field.classList.toggle('has-root', hasRoot);
+  field.classList.toggle('has-exponent', hasExponent);
+  field.classList.toggle('empty', isPowerEmpty);
 };
 
 const createMathElement = (type, content = {}) => {
@@ -127,18 +138,10 @@ const createMathElement = (type, content = {}) => {
     }
     fields[fieldName] = field;
 
-    if ((type === 'sqrt' && fieldName === 'sqrt-content') || (type === 'cbrt' && fieldName === 'cbrt-content')) {
-      let hasRoot = false;
-      if (content[contentKey] && typeof content[contentKey] !== 'string') {
-        if (content[contentKey].classList.contains('sqrt') || content[contentKey].classList.contains('cbrt')) {
-          hasRoot = true;
-        }
-      }
-      if (hasRoot) {
-        field.classList.add('has-root');
-      }
-      if (content[contentKey] && typeof content[contentKey] === 'string' && /\d/.test(content[contentKey])) {
-        field.classList.add('has-numbers');
+    if (type === 'sqrt' || type === 'cbrt') {
+      const contentField = element.querySelector('.sqrt-content, .cbrt-content');
+      if (contentField) {
+        updateRootContentClasses(contentField);
       }
     }
   });
@@ -196,6 +199,8 @@ const insertMathElement = (type, content = {}) => {
     selection.addRange(range);
   }
   if (type === 'sqrt' || type === 'cbrt') {
+    const contentField = element.querySelector('.sqrt-content, .cbrt-content');
+    updateRootContentClasses(contentField);
     let nestingLevel = getRootNesting(element);
     if (nestingLevel >= 1) {
         const parentRoots = [];
@@ -214,6 +219,7 @@ const insertMathElement = (type, content = {}) => {
         let rootWidth = 14;
         let rootHeight = 24;
         parentRoots.forEach(parentRoot => {
+            console.log(rootWidth, rootHeight, parentRoot)
             const content = type === 'sqrt' 
             ? parentRoot.querySelector('.sqrt-content')
             : parentRoot.querySelector('.cbrt-content');
@@ -226,20 +232,30 @@ const insertMathElement = (type, content = {}) => {
             if (nestingLevel >= 6) rootWidth +=1;
             rootWidth += 2;
             rootHeight += 4;
-            
+            updateRootContentClasses(content); 
         });
     }
     let currentParent = element;
     while (currentParent) {
         currentParent = getParentRoot(currentParent);
         if (currentParent) {
-            const contentField = currentParent.querySelector('.sqrt-content, .cbrt-content');
-            if (contentField && contentField.classList.contains('has-numbers')) {
-                contentField.classList.add('has-root');
-            }
+          const contentField = currentParent.querySelector('.sqrt-content, .cbrt-content');
+          if (contentField) {
+            updateRootContentClasses(contentField);
+          }
         }
     }
   } 
+
+  if (type === 'power') {
+    let currentParent = element;
+    while (currentParent && currentParent !== inputField) {
+      if (currentParent.classList.contains('sqrt-content') || currentParent.classList.contains('cbrt-content')) {
+        updateRootContentClasses(currentParent);
+      }
+      currentParent = currentParent.parentNode;
+    }
+  }
   const range = document.createRange();
   range.setStart(focusField, 0);
   range.setEnd(focusField, 0);

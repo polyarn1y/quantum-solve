@@ -126,6 +126,20 @@ body {
   gap: 11px;
 }
 
+.toolbar-additional {
+  display: none;
+  gap: 5px;
+}
+
+.toolbar-additional.active {
+  display: flex;
+}
+
+.toolbar__button-additional.active {
+  background-color: #3F3F46;
+  border-color: #52525B;
+}
+
 .toolbar__button {
   display: flex;
   align-items: center;

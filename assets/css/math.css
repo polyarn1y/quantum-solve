@@ -60,13 +60,11 @@
   align-items: flex-start;
 }
 
-.base, .exponent {
+.base {
   font-family: var(--input-font);
-  min-width: 10px;
-  min-height: 10px;
-  line-height: 10px;
+  min-width: 16px;
+  line-height: 16px;
   box-sizing: content-box;
-  padding: 6px;
   text-align: center;
   background-color: #18181B;
   display: inline-flex;
@@ -78,18 +76,25 @@
 }
 
 .exponent {
-  font-size: clamp(11px, 2vw, 13px);
-  padding: 2px;
+  font-family: var(--input-font);
+  min-width: 10px;
+  line-height: 10px;
+  font-size: 10px;
+  box-sizing: content-box;
+  text-align: center;
   margin-left: 2px;
-  transform: translateY(-6px);
   margin-right: 2px;
+  background-color: #18181B;
+  border-radius: 2px;
+  border: 1px dashed #6b6b74;
+  color: #fff;
 }
 
-.exponent:empty {
+/* .exponent:empty {
   width: 11px;
   height: 11px;
   line-height: 14px;
-}
+} */
 
 .base:empty + .exponent:not(:empty) {
   margin: 2px;
@@ -123,7 +128,7 @@ vertical-align: middle;
 position: relative; 
 }
 .sqrt-symbol img,
-.cbrt-symbol svg {
+.cbrt-symbol img {
   width: 12px;
   height: 20px;
   fill: white;
@@ -192,12 +197,27 @@ position: relative;
   background-color: #fff;
 }
 
-.sqrt-content.has-numbers {
+.sqrt-content.has-numbers,
+.cbrt-content.has-numbers {
   margin-left: 0px;
 }
 
-.sqrt-content.has-root {
+.sqrt-content.has-root,
+.cbrt-content.has-root {
   margin-left: 0px;
+}
+
+.sqrt-content.has-exponent.empty::before {
+  top: -2px;
+}
+
+/* .sqrt-content.has-exponent:empty::before,
+.cbrt-content.has-exponent:empty::before {
+  top: -2px;
+} */
+
+.sqrt-content.has-exponent:empty {
+  background-color: red;
 }
 
 .sqrt-content:not(:empty) ~ .sqrt-symbol,
@@ -214,7 +234,6 @@ position: relative;
   pointer-events: none;
 }
 
-.sqrt:not(.sqrt .sqrt),
-.cbrt:not(.cbrt .cbrt) {
+.sqrt:not(.sqrt .sqrt) {
   transform: translateY(-3px);
 }

@@ -11,3 +11,4 @@ export const resultContainer = document.querySelector(".result");
 export const loader = document.getElementById("loader");
 export const placeholder = document.querySelector(".main__input-placeholder");
 export const mathKeys = document.querySelectorAll(".mathInput__key");
+export const additional = document.querySelector(".toolbar-additional");
