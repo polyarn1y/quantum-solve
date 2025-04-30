@@ -211,11 +211,6 @@ position: relative;
   top: -2px;
 }
 
-/* .sqrt-content.has-exponent:empty::before,
-.cbrt-content.has-exponent:empty::before {
-  top: -2px;
-} */
-
 .sqrt-content.has-exponent:empty {
   background-color: red;
 }
@@ -236,4 +231,37 @@ position: relative;
 
 .sqrt:not(.sqrt .sqrt) {
   transform: translateY(-3px);
+}
+/* Trigonometric functions */
+.trig-func {
+  display: inline-flex;
+  align-items: center;
+  font-size: clamp(13px, 2vw, 18px);
+  margin: 0 2px;
+  font-family: var(--input-font);
+}
+.trig-paren {
+  font-size: 1em;
+}
+.trig-content {
+  font-family: var(--input-font);
+  min-width: 16px;
+  min-height: 16px;
+  line-height: 16px;
+  box-sizing: content-box;
+  font-size: clamp(13px, 2vw, 18px);
+  text-align: center;
+  background-color: #18181B;
+  display: inline-flex;
+  border-radius: 2px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #6b6b74;
+  color: #fff;
+  position: relative;
+}
+.trig-content:focus {
+  outline: none;
+  background-color: #3F3F46;
+  border: 1px dashed #52525B;
 }
