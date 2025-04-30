@@ -240,9 +240,12 @@ position: relative;
   margin: 0 2px;
   font-family: var(--input-font);
 }
-.trig-paren {
-  font-size: 1em;
+
+.trig-name {
+  font-family: var(--input-font);
+  user-select: none;
 }
+
 .trig-content {
   font-family: var(--input-font);
   min-width: 16px;
@@ -259,9 +262,27 @@ position: relative;
   border: 1px dashed #6b6b74;
   color: #fff;
   position: relative;
+  margin-left: 2px;
+  margin-right: 2px;
 }
+
+.trig-content:not(:empty) {
+  border: none;
+  background-color: transparent;
+}
+
+.trig-content:not(:empty):focus {
+  background-color: transparent;
+  border: none;
+}
+
 .trig-content:focus {
   outline: none;
   background-color: #3F3F46;
   border: 1px dashed #52525B;
+}
+
+.trig-paren {
+  font-family: var(--input-font);
+  user-select: none;
 }

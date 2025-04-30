@@ -241,7 +241,7 @@ body {
 .mathInput__key img {
   width: 31px;
   height: 31px;
-  transform: scale(1.5);
+  transform: scale(1.4);
   transform-origin: center;
 }
 

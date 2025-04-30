@@ -33,6 +33,14 @@ const TEMPLATES = {
       <span class="exponent" contenteditable="true"></span>
     </span>
   `.trim(),
+  trig: `
+    <span class="trig-func" contenteditable="false" data-selected="false">
+      <span class="trig-name" contenteditable="false"></span>
+      <span class="trig-paren" contenteditable="false">(</span>
+      <span class="trig-content" contenteditable="true"></span>
+      <span class="trig-paren" contenteditable="false">)</span>
+    </span>
+  `.trim(),
 };
 
 const ELEMENT_CONFIG = {
@@ -59,6 +67,10 @@ const ELEMENT_CONFIG = {
       firstToSecond: { keys: ["ArrowRight", "ArrowUp"], condition: isAtEnd },
       secondToFirst: { keys: ["ArrowLeft", "ArrowDown"], condition: isAtStart },
     },
+  },
+  trig: {
+    editableFields: ["trig-content"],
+    focusField: () => "trig-content",
   },
 };
 
@@ -146,6 +158,14 @@ const createMathElement = (type, content = {}) => {
     }
   });
 
+  if (type === 'trig' && content.name) {
+    const trigName = element.querySelector('.trig-name');
+    let display = content.name;
+    if (content.isHyperbolic) display += 'h';
+    if (content.isInverse) display += '<sup>-1</sup>';
+    trigName.innerHTML = display;
+  }
+
   setupMathElementEvents(type, fields);
   return element;
 };
@@ -185,11 +205,11 @@ const insertMathElement = (type, content = {}) => {
     const range = selection.getRangeAt(0);
     range.deleteContents();
     range.insertNode(element);
-    const newRange = document.createRange();
-    newRange.setStartAfter(element);
-    newRange.collapse(true);
+    const range2 = document.createRange();
+    range2.setStartAfter(element);
+    range2.collapse(true);
     selection.removeAllRanges();
-    selection.addRange(newRange);
+    selection.addRange(range2);
   } else {
     inputField.appendChild(element);
     const range = document.createRange();
@@ -271,6 +291,8 @@ export const insertFraction = (numeratorText) => insertMathElement("fraction", {
 export const insertSqrt = (contentText) => insertMathElement("sqrt", { first: contentText });
 export const insertCbrt = (contentText) => insertMathElement("cbrt", { first: contentText });
 export const insertPower = (baseText) => insertMathElement("power", { first: baseText });
+export const insertTrig = (name, isInverse = false, isHyperbolic = false) => 
+  insertMathElement("trig", { name, isInverse, isHyperbolic });
 
 const setupMathElementEvents = (type, fields) => {
   const config = ELEMENT_CONFIG[type];
@@ -280,6 +302,28 @@ const setupMathElementEvents = (type, fields) => {
     if (e.key === 'Backspace' && field.textContent.trim() === '') {
       e.preventDefault();
       e.stopPropagation();
+  
+      // Специальная обработка для trig-content
+      if (field.classList.contains('trig-content')) {
+        const trigFunc = field.closest('.trig-func');
+        if (trigFunc) {
+          // Снимаем выделение со всех тригонометрических функций
+          inputField.querySelectorAll('.trig-func').forEach(el => {
+            el.classList.remove('selected');
+            el.dataset.selected = 'false';
+          });
+          // Выделяем текущую функцию
+          trigFunc.classList.add('selected');
+          trigFunc.dataset.selected = 'true';
+          // Выделяем весь элемент
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNode(trigFunc);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          return;
+        }
+      }
   
       let otherContent = '';
       let otherField = null;
@@ -324,7 +368,7 @@ const setupMathElementEvents = (type, fields) => {
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
-      } else if (element.dataset.selected === 'true') {
+      } else if (element && element.dataset.selected === 'true') {
         const parent = element.parentNode;
         const nextSibling = element.nextSibling;
         const isRoot = element.classList.contains('sqrt') || element.classList.contains('cbrt');
@@ -367,7 +411,7 @@ const setupMathElementEvents = (type, fields) => {
           selection.removeAllRanges();
           selection.addRange(range);
         }
-      } else {
+      } else if (element) {
         const allElements = inputField.querySelectorAll(`.${type}`);
         allElements.forEach(el => {
           el.classList.remove('selected');
@@ -380,26 +424,15 @@ const setupMathElementEvents = (type, fields) => {
         range.selectNode(element);
         selection.removeAllRanges();
         selection.addRange(range);
-  
-        let parentContent = element.parentNode;
-        while (parentContent && parentContent !== inputField) {
-          if (parentContent.classList.contains('sqrt-content') || parentContent.classList.contains('cbrt-content')) {
-            const newRange = document.createRange();
-            newRange.setStart(parentContent, parentContent.childNodes.length);
-            newRange.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(newRange);
-            break;
-          }
-          parentContent = parentContent.parentNode;
-        }
       }
     }
   };
 
   const removeSelection = () => {
-    element.classList.remove('selected');
-    element.dataset.selected = 'false';
+    if (element) {
+      element.classList.remove('selected');
+      element.dataset.selected = 'false';
+    }
   };
 
   config.editableFields.forEach((fieldName, index) => {
@@ -434,7 +467,7 @@ const setupMathElementEvents = (type, fields) => {
   });
 
   document.addEventListener('click', (e) => {
-    if (!element.contains(e.target)) {
+    if (element && !element.contains(e.target)) {
       removeSelection();
     }
   });
