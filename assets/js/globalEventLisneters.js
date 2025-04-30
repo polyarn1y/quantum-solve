@@ -6,9 +6,10 @@ import {
   mathButton,
   mathContainer,
   mathKeys,
+  additional
 } from "./constants.js";
 import { solve } from "./index.js";
-import { toggle, updatePlaceholderVisibility } from "./utils.js";
+import { toggle, updatePlaceholderVisibility, show, hide } from "./utils.js";
 import { insertFraction, insertSqrt, insertCbrt, insertPower, handleSlashKey } from './math/mathElements.js';
 import { removeLoader } from './loader.js';
 
@@ -19,6 +20,11 @@ const toggleWithExclusive = (button, container, otherButton, otherContainer) => 
   if (otherButton.classList.contains("active")) {
     toggle(otherButton);
     toggle(otherContainer);
+  }
+  if (button === mathButton && button.classList.contains("active")) {
+    show(additional);
+  } else {
+    hide(additional);
   }
 };
 
