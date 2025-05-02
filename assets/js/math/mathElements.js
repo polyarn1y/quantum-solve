@@ -302,20 +302,15 @@ const setupMathElementEvents = (type, fields) => {
     if (e.key === 'Backspace' && field.textContent.trim() === '') {
       e.preventDefault();
       e.stopPropagation();
-  
-      // Специальная обработка для trig-content
-      if (field.classList.contains('trig-content')) {
+        if (field.classList.contains('trig-content')) {
         const trigFunc = field.closest('.trig-func');
         if (trigFunc) {
-          // Снимаем выделение со всех тригонометрических функций
           inputField.querySelectorAll('.trig-func').forEach(el => {
             el.classList.remove('selected');
             el.dataset.selected = 'false';
           });
-          // Выделяем текущую функцию
           trigFunc.classList.add('selected');
           trigFunc.dataset.selected = 'true';
-          // Выделяем весь элемент
           const selection = window.getSelection();
           const range = document.createRange();
           range.selectNode(trigFunc);
@@ -435,6 +430,18 @@ const setupMathElementEvents = (type, fields) => {
     }
   };
 
+  const handleInputFieldClick = (e) => {
+    const selectedElements = inputField.querySelectorAll('.fraction.selected, .power.selected, .sqrt.selected, .cbrt.selected, .trig-func.selected');
+    selectedElements.forEach(el => {
+      if (el !== element) {
+        el.classList.remove('selected');
+        el.dataset.selected = 'false';
+      }
+    });
+  };
+
+  inputField.addEventListener('click', handleInputFieldClick);
+
   config.editableFields.forEach((fieldName, index) => {
     const field = fields[fieldName];
     if ((type === 'sqrt' && fieldName === 'sqrt-content') || (type === 'cbrt' && fieldName === 'cbrt-content')) {
@@ -464,12 +471,6 @@ const setupMathElementEvents = (type, fields) => {
         removeSelection();
       }
     });
-  });
-
-  document.addEventListener('click', (e) => {
-    if (element && !element.contains(e.target)) {
-      removeSelection();
-    }
   });
 };
 
