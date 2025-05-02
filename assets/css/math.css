@@ -229,9 +229,6 @@ position: relative;
   pointer-events: none;
 }
 
-.sqrt:not(.sqrt .sqrt) {
-  transform: translateY(-3px);
-}
 /* Trigonometric functions */
 .trig-func {
   display: inline-flex;
