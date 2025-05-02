@@ -10,9 +10,8 @@ import {
 } from "./constants.js";
 import { solve } from "./index.js";
 import { toggle, updatePlaceholderVisibility, show, hide } from "./utils.js";
-import { insertFraction, insertSqrt, insertCbrt, insertPower, handleSlashKey } from './math/mathElements.js';
+import { insertFraction, insertSqrt, insertCbrt, insertPower, insertTrig, handleSlashKey } from './math/mathElements.js';
 import { removeLoader } from './loader.js';
-import { createTrigTemplate } from './math/trigTemplates.js';
 
 const handleSolve = (expression) => solve(expression.trim());
 
@@ -71,7 +70,12 @@ const removeBreaks = (element) => {
 
 const removeEmptyDivs = (element) => {
   element.querySelectorAll('div').forEach(div => {
-    const hasContent = div.textContent.trim() !== '' || div.querySelector('span.fraction') || div.querySelector('span.power') || div.querySelector('span.sqrt') || div.querySelector('span.cbrt');
+    const hasContent = div.textContent.trim() !== '' || 
+      div.querySelector('span.fraction') || 
+      div.querySelector('span.power') || 
+      div.querySelector('span.sqrt') || 
+      div.querySelector('span.cbrt') || 
+      div.querySelector('span.trig-func');
     if (!hasContent) {
       div.remove();
     }
@@ -101,7 +105,6 @@ export const addGlobalEventListeners = () => {
       if (!btn) return;
       const img = btn.querySelector('img');
       if (!img) return;
-      // Определяем функцию по имени файла
       const src = img.src;
       let func = null, isInverse = false, isHyperbolic = false;
       if (src.includes('sin_inv')) { func = 'sin'; isInverse = true; }
@@ -126,7 +129,7 @@ export const addGlobalEventListeners = () => {
       else if (src.includes('csc')) { func = 'csc'; }
       else if (src.includes('cot')) { func = 'cot'; }
       if (func) {
-        insertTrigTemplateToInput(func, isInverse, isHyperbolic);
+        insertTrig(func, isInverse, isHyperbolic);
       }
     });
   }
@@ -217,29 +220,3 @@ const setupMathKeys = () => {
     }
   });
 };
-
-function insertTrigTemplateToInput(name, isInverse, isHyperbolic) {
-  inputField.focus();
-  const selection = window.getSelection();
-  let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-  if (!range || !inputField.contains(range.startContainer)) {
-    range = document.createRange();
-    range.selectNodeContents(inputField);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
-  const trigElem = createTrigTemplate(name, isInverse, isHyperbolic);
-  range.insertNode(trigElem);
-  // Переместить курсор внутрь placeholder
-  const placeholder = trigElem.querySelector('.trig-placeholder');
-  if (placeholder) {
-    const newRange = document.createRange();
-    newRange.selectNodeContents(placeholder);
-    newRange.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(newRange);
-    placeholder.focus();
-  }
-  updatePlaceholderVisibility();
-}
