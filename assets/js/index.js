@@ -3,8 +3,11 @@ import { Complex, evaluateComplexExpression } from "./complex.js";
 import { show, hide, formatNumber } from "./utils.js";
 import { addGlobalEventListeners } from "./globalEventLisneters.js";
 import { parseExpression } from "./math/parseExpression.js";
+import { TrigParser } from "./math/trigParser.js";
 
 addGlobalEventListeners();
+
+const trigParser = new TrigParser();
 
 function replaceMathFunctions(expression) {
   let result = expression;
@@ -66,13 +69,9 @@ export function solve() {
     } else {
       let evalExpression = expression
         .replace(/π/g, 'Math.PI')
-        .replace(/∞/g, 'Infinity')
-        .replace(/sin\(([^)]+)\)/g, "Math.sin($1)")
-        .replace(/cos\(([^)]+)\)/g, "Math.cos($1)")
-        .replace(/tan\(([^)]+)\)/g, "Math.tan($1)")
-        .replace(/exp\(([^)]+)\)/g, "Math.exp($1)")
-        .replace(/log\(([^)]+)\)/g, "Math.log($1)");
+        .replace(/∞/g, 'Infinity');
 
+      evalExpression = trigParser.parseExpression(evalExpression);
       evalExpression = replaceMathFunctions(evalExpression);
 
       result = eval(evalExpression);

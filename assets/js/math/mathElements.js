@@ -291,8 +291,59 @@ export const insertFraction = (numeratorText) => insertMathElement("fraction", {
 export const insertSqrt = (contentText) => insertMathElement("sqrt", { first: contentText });
 export const insertCbrt = (contentText) => insertMathElement("cbrt", { first: contentText });
 export const insertPower = (baseText) => insertMathElement("power", { first: baseText });
-export const insertTrig = (name, isInverse = false, isHyperbolic = false) => 
+export const insertTrig = (name, isInverse = false, isHyperbolic = false) => {
+  if (name === 'pi') {
+    inputField.focus();
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode('π');
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    updatePlaceholderVisibility();
+    return;
+  }
+
+  if (name === 'degree') {
+    inputField.focus();
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode('°');
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    updatePlaceholderVisibility();
+    return;
+  }
+
+  if (name === 'rad') {
+    inputField.focus();
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode('rad');
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    updatePlaceholderVisibility();
+    return;
+  }
   insertMathElement("trig", { name, isInverse, isHyperbolic });
+};
 
 const setupMathElementEvents = (type, fields) => {
   const config = ELEMENT_CONFIG[type];
