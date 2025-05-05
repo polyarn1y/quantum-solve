@@ -106,6 +106,22 @@ export const addGlobalEventListeners = () => {
       const img = btn.querySelector('img');
       if (!img) return;
       const src = img.src;
+
+      if (src.includes('pi.svg')) {
+        insertTrig('pi');
+        return;
+      }
+
+      if (src.includes('degree.svg')) {
+        insertTrig('degree');
+        return;
+      }
+
+      if (src.includes('rad.svg')) {
+        insertTrig('rad');
+        return;
+      }
+
       let func = null, isInverse = false, isHyperbolic = false;
       if (src.includes('sin_inv')) { func = 'sin'; isInverse = true; }
       else if (src.includes('cos_inv')) { func = 'cos'; isInverse = true; }
@@ -214,6 +230,9 @@ const handleMathKeyClick = (action) => {
 
 const setupMathKeys = () => {
   mathKeys.forEach((key) => {
+    key.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
     const action = key.dataset.action;
     if (action in actionHandlers) {
       key.addEventListener('click', () => handleMathKeyClick(action));

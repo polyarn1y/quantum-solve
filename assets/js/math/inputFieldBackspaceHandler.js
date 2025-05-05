@@ -7,8 +7,6 @@ const handleInputFieldBackspace = (e) => {
       el.classList.remove('selected');
       el.dataset.selected = 'false';
     });
-
-    // Обработка стрелок для trig-func
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       const selection = window.getSelection();
       if (selection.rangeCount > 0) {

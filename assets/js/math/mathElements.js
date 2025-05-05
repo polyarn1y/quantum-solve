@@ -291,8 +291,45 @@ export const insertFraction = (numeratorText) => insertMathElement("fraction", {
 export const insertSqrt = (contentText) => insertMathElement("sqrt", { first: contentText });
 export const insertCbrt = (contentText) => insertMathElement("cbrt", { first: contentText });
 export const insertPower = (baseText) => insertMathElement("power", { first: baseText });
-export const insertTrig = (name, isInverse = false, isHyperbolic = false) => 
+export const insertTrig = (name, isInverse = false, isHyperbolic = false) => {
+  if (name === 'pi' || name === 'degree' || name === 'rad') {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const startContainer = range.startContainer;
+      if (inputField.contains(startContainer)) {
+        range.deleteContents();
+        const symbol = name === 'pi' ? 'π' : name === 'degree' ? '°' : 'rad';
+        const textNode = document.createTextNode(symbol);
+        range.insertNode(textNode);
+
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const editableParent = startContainer.nodeType === Node.TEXT_NODE
+          ? startContainer.parentElement.closest('[contenteditable="true"]')
+          : startContainer.closest('[contenteditable="true"]');
+        const focusElement = editableParent || inputField;
+        focusElement.focus();
+      } else {
+        inputField.focus();
+        const textNode = document.createTextNode(name === 'pi' ? 'π' : name === 'degree' ? '°' : 'rad');
+        inputField.appendChild(textNode);
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+    updatePlaceholderVisibility();
+    return;
+  }
+
   insertMathElement("trig", { name, isInverse, isHyperbolic });
+};
 
 const setupMathElementEvents = (type, fields) => {
   const config = ELEMENT_CONFIG[type];

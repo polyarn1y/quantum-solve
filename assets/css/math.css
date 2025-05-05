@@ -259,8 +259,6 @@ position: relative;
   border: 1px dashed #6b6b74;
   color: #fff;
   position: relative;
-  margin-left: 2px;
-  margin-right: 2px;
 }
 
 .trig-content:not(:empty) {
