@@ -91,6 +91,9 @@ export const addGlobalEventListeners = () => {
   
   const additionalButtons = document.querySelectorAll('.toolbar__button-additional');
   additionalButtons.forEach(button => {
+    button.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+    });
     button.addEventListener('click', () => {
       if (mathButton.classList.contains('active')) {
         toggleAdditionalButtons(button);
@@ -100,7 +103,8 @@ export const addGlobalEventListeners = () => {
 
   const trigContainer = document.querySelector('.mathInput__container-trigonometric');
   if (trigContainer) {
-    trigContainer.addEventListener('click', (e) => {
+    trigContainer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       const btn = e.target.closest('.mathInput__key');
       if (!btn) return;
       const img = btn.querySelector('img');
@@ -166,31 +170,49 @@ export const addGlobalEventListeners = () => {
     if (event.key === '^') {
       event.preventDefault();
       const selection = window.getSelection();
-      let baseText = '';
+      let baseContent = '';
+
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
-        const startContainer = range.startContainer;
-        const startOffset = range.startOffset;
 
-        if (startContainer.nodeType === Node.TEXT_NODE) {
-          baseText = startContainer.textContent.slice(0, startOffset).trim();
-          startContainer.textContent = startContainer.textContent.slice(startOffset);
-        } else if (startContainer === inputField || startContainer.parentNode === inputField) {
-          const nodes = Array.from(inputField.childNodes);
-          const currentNodeIndex = nodes.findIndex(node => 
-            node === startContainer || node.contains(startContainer)
-          );
-          if (currentNodeIndex > 0) {
-            const prevNode = nodes[currentNodeIndex - 1];
-            if (prevNode.nodeType === Node.TEXT_NODE) {
-              baseText = prevNode.textContent.trim();
-              prevNode.remove();
+        if (!range.collapsed) {
+          baseContent = range.extractContents();
+        } else {
+          const container = range.startContainer;
+          const offset = range.startOffset;
+
+          if (container.nodeType === Node.TEXT_NODE) {
+            const textBeforeCursor = container.textContent.slice(0, offset);
+            const match = textBeforeCursor.match(/[^\s]+$/);
+            if (match) {
+              baseContent = match[0];
+              container.textContent = textBeforeCursor.substring(0, textBeforeCursor.length - baseContent.length) + container.textContent.slice(offset);
+            }
+          } else if (offset > 0 && container.childNodes[offset - 1]) {
+            const nodeBeforeCursor = container.childNodes[offset - 1];
+            if (nodeBeforeCursor.nodeType === Node.ELEMENT_NODE) {
+              baseContent = nodeBeforeCursor;
+              nodeBeforeCursor.remove();
+            } else if (nodeBeforeCursor.nodeType === Node.TEXT_NODE) {
+              const textContent = nodeBeforeCursor.textContent;
+              const match = textContent.match(/[^\s]+$/);
+              if (match) {
+                baseContent = match[0];
+                nodeBeforeCursor.textContent = textContent.substring(0, textContent.length - baseContent.length);
+                if (nodeBeforeCursor.textContent.trim() === '') {
+                  nodeBeforeCursor.remove();
+                }
+              }
             }
           }
         }
       }
 
-      insertPower(baseText);
+      if (baseContent instanceof DocumentFragment && !baseContent.hasChildNodes()) {
+        baseContent = '';
+      }
+      
+      insertPower(baseContent || '');
       updatePlaceholderVisibility();
       removeBreaks(inputField);
       removeEmptyDivs(inputField);
@@ -202,9 +224,17 @@ export const addGlobalEventListeners = () => {
     removeEmptyDivs(inputField);
   });
   solveButton.addEventListener('click', () => handleSolve(inputField.textContent));
+
+  mathButton.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+  });
   mathButton.addEventListener('click', () => 
     toggleWithExclusive(mathButton, mathContainer, keyboardButton, keyboardContainer)
   );
+
+  keyboardButton.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+  });
   keyboardButton.addEventListener('click', () => 
     toggleWithExclusive(keyboardButton, keyboardContainer, mathButton, mathContainer)
   );

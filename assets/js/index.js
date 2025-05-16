@@ -4,9 +4,10 @@ import { show, hide, formatNumber } from "./utils.js";
 import { addGlobalEventListeners } from "./globalEventLisneters.js";
 import { parseExpression } from "./math/parseExpression.js";
 import { TrigParser } from "./math/trigParser.js";
+import { Rational, evaluateRationalExpression } from "./rational.js";
 
 addGlobalEventListeners();
-
+inputField.focus();
 const trigParser = new TrigParser();
 
 function replaceMathFunctions(expression) {
@@ -56,6 +57,19 @@ function replaceMathFunctions(expression) {
   return result;
 }
 
+function isPurelyRational(expr) {
+  if (expr.includes('i') || 
+      expr.includes('sqrt') || 
+      expr.includes('cbrt') || 
+      expr.includes('Math.') ||
+      expr.includes('sin') || expr.includes('cos') || expr.includes('tan') ||
+      expr.includes('sec') || expr.includes('csc') || expr.includes('cot') ||
+      expr.includes('π') || expr.includes('∞')) {
+    return false;
+  }
+  return true; 
+}
+
 export function solve() {
   try {
     hide(errorContainer);
@@ -64,8 +78,25 @@ export function solve() {
 
     const isComplex = /(?<![a-zA-Z])[i](?![a-zA-Z])/.test(expression);
     let result;
+
     if (isComplex) {
       result = evaluateComplexExpression(expression);
+    } else if (isPurelyRational(expression)) {
+      try {
+        result = evaluateRationalExpression(expression);
+      } catch (rationalError) {
+        let evalExpression = expression
+          .replace(/π/g, 'Math.PI')
+          .replace(/∞/g, 'Infinity');
+        evalExpression = trigParser.parseExpression(evalExpression);
+        evalExpression = replaceMathFunctions(evalExpression);
+        result = eval(evalExpression);
+        if (result === Infinity || result === -Infinity) {
+          result = result === Infinity ? "∞" : "-∞";
+        } else if (isNaN(result) || !isFinite(result)) {
+          throw new Error("Неверный результат после попытки рационального вычисления");
+        }
+      }
     } else {
       let evalExpression = expression
         .replace(/π/g, 'Math.PI')
@@ -88,6 +119,8 @@ export function solve() {
 
     if (result instanceof Complex) {
       outputSpan.textContent = result.toString();
+    } else if (result instanceof Rational) {
+      outputSpan.textContent = result.toString();
     } else if (typeof result === 'number') {
       outputSpan.textContent = formatNumber(result);
     } else {
@@ -95,6 +128,7 @@ export function solve() {
     }
     show(resultContainer);
   } catch (error) {
+    errorContainer.textContent = error.message;
     show(errorContainer);
     hide(resultContainer);
   }
