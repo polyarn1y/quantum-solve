@@ -483,7 +483,42 @@ const setupMathElementEvents = (type, fields) => {
     const field = fields[fieldName];
     if ((type === 'sqrt' && fieldName === 'sqrt-content') || (type === 'cbrt' && fieldName === 'cbrt-content')) {
       updateRootContentClasses(field);
-      field.addEventListener('input', () => updateRootContentClasses(field));
+      field.addEventListener('input', (e) => {
+        updatePlaceholderVisibility();
+        if (type === 'power') {
+          const powerElement = field.closest('.power');
+          if (powerElement) {
+            const baseSpan = powerElement.querySelector('.base');
+            const exponentSpan = powerElement.querySelector('.exponent');
+
+            if (baseSpan && exponentSpan &&
+                baseSpan.textContent.trim() === 'i' &&
+                exponentSpan.textContent.trim() === '2') {
+              
+              const replacementNode = document.createTextNode('-1');
+              if (powerElement.parentNode) {
+                powerElement.parentNode.replaceChild(replacementNode, powerElement);
+              
+                const range = document.createRange();
+                range.setStartAfter(replacementNode);
+                range.collapse(true);
+                const selection = window.getSelection();
+                if (selection) {
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                }
+              }
+              updatePlaceholderVisibility(); 
+            }
+          }
+        }
+        if (type === 'sqrt' || type === 'cbrt') {
+          const contentField = field.closest('.sqrt-content, .cbrt-content');
+          if (contentField) {
+            updateRootContentClasses(contentField);
+          }
+        }
+      });
     }
     field.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace') {
