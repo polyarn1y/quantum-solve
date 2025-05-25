@@ -10,6 +10,25 @@ addGlobalEventListeners();
 inputField.focus();
 const trigParser = new TrigParser();
 
+const helpButton = document.querySelector('.help-button');
+const helpModal = document.getElementById('helpModal');
+const closeButton = document.querySelector('.close-button');
+
+helpButton.addEventListener('click', (event) => {
+  event.preventDefault(); 
+  helpModal.classList.add('active');
+});
+
+closeButton.addEventListener('click', () => {
+  helpModal.classList.remove('active');
+});
+
+window.addEventListener('click', (event) => {
+  if (event.target == helpModal) {
+    helpModal.classList.remove('active');
+  }
+});
+
 function replaceMathFunctions(expression) {
   let result = expression;
   let startIndex = 0;
@@ -64,10 +83,56 @@ function isPurelyRational(expr) {
       expr.includes('Math.') ||
       expr.includes('sin') || expr.includes('cos') || expr.includes('tan') ||
       expr.includes('sec') || expr.includes('csc') || expr.includes('cot') ||
-      expr.includes('π') || expr.includes('∞')) {
+      expr.includes('π') || expr.includes('∞') ||
+      expr.includes('**')) {
     return false;
   }
   return true; 
+}
+
+function handleLargeExponent(expression) {
+  const patternWithParens = /^\s*\(\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*\*\*\s*(\d+)\s*\)\s*$/;
+  const patternWithoutParens = /^\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*\*\*\s*(\d+)\s*$/;
+
+  let match = expression.match(patternWithParens);
+  let baseStr, exponentStr;
+
+  if (match) {
+    baseStr = match[1];
+    exponentStr = match[2];
+  } else {
+    match = expression.match(patternWithoutParens);
+    if (match) {
+      baseStr = match[1];
+      exponentStr = match[2];
+    }
+  }
+
+  if (baseStr && exponentStr) {
+    const base = parseFloat(baseStr);
+    const exponent = parseInt(exponentStr, 10);
+
+    if (base > 0 && exponent >= 1000) {
+      try {
+        const log10Base = Math.log10(base);
+        const totalLog = exponent * log10Base;
+
+        if (!isFinite(totalLog)) {
+            return "Переполнение при вычислении log"; // Отличимое сообщение
+        }
+
+        const expOrder = Math.floor(totalLog);
+        const mantissaLog = totalLog - expOrder;
+        let mantissa = Math.pow(10, mantissaLog);
+        mantissa = parseFloat(mantissa.toPrecision(15)); // Ограничиваем точность мантиссы
+
+        return `${mantissa}e+${expOrder}`;
+      } catch (e) {
+        return null; // Ошибка при вычислении логарифма, возврат к eval
+      }
+    }
+  }
+  return null; // Не соответствует паттерну или условиям (маленький показатель, неположительное основание)
 }
 
 export function solve() {
@@ -80,42 +145,60 @@ export function solve() {
     let result;
 
     if (isComplex) {
-      result = evaluateComplexExpression(expression);
+      result = evaluateComplexExpression(expression.replace(/\^/g, '**'));
     } else if (isPurelyRational(expression)) {
       try {
-        result = evaluateRationalExpression(expression);
+        result = evaluateRationalExpression(expression.replace(/\^/g, '**'));
       } catch (rationalError) {
         let evalExpression = expression
           .replace(/π/g, 'Math.PI')
-          .replace(/∞/g, 'Infinity');
+          .replace(/∞/g, 'Infinity')
+          .replace(/\^/g, '**');
         evalExpression = trigParser.parseExpression(evalExpression);
         evalExpression = replaceMathFunctions(evalExpression);
         result = eval(evalExpression);
-        if (result === Infinity || result === -Infinity) {
+        if (typeof result === 'number' && (result === Infinity || result === -Infinity)) {
           result = result === Infinity ? "∞" : "-∞";
-        } else if (isNaN(result) || !isFinite(result)) {
+        } else if (typeof result === 'number' && (isNaN(result) || !isFinite(result))) {
           throw new Error("Неверный результат после попытки рационального вычисления");
         }
       }
     } else {
       let evalExpression = expression
         .replace(/π/g, 'Math.PI')
-        .replace(/∞/g, 'Infinity');
+        .replace(/∞/g, 'Infinity')
+        .replace(/\^/g, '**');
 
-      evalExpression = trigParser.parseExpression(evalExpression);
-      evalExpression = replaceMathFunctions(evalExpression);
+      let largeExponentHandled = false;
+      const largeExpStr = handleLargeExponent(evalExpression);
 
-      result = eval(evalExpression);
-      if (result === Infinity || result === -Infinity) {
-        result = result === Infinity ? "∞" : "-∞";
-      } else if (isNaN(result) || !isFinite(result)) {
-        throw new Error("Неверный результат");
+      if (largeExpStr !== null) {
+        result = largeExpStr; 
+        largeExponentHandled = true;
+      } else {
+        let exprForEval = evalExpression;
+        exprForEval = trigParser.parseExpression(exprForEval);
+        exprForEval = replaceMathFunctions(exprForEval);
+        result = eval(exprForEval);
+      }
+
+      if (!largeExponentHandled) {
+        if (typeof result === 'number') {
+          if (result === Infinity || result === -Infinity) {
+            result = result === Infinity ? "∞" : "-∞";
+          } else if (isNaN(result) || !isFinite(result)) {
+            throw new Error("Неверный числовой результат от eval");
+          }
+        } else {
+           throw new Error("Результат eval не является числом");
+        }
       }
     }
+
     const queryString = hasCustomElements
       ? parseExpression(true)
-      : inputField.textContent;
-    querySpan.textContent = queryString.replace(/\*\*/g, '^');
+      : inputField.textContent.trim();
+    querySpan.textContent = queryString;
 
     if (result instanceof Complex) {
       outputSpan.textContent = result.toString();
@@ -123,12 +206,14 @@ export function solve() {
       outputSpan.textContent = result.toString();
     } else if (typeof result === 'number') {
       outputSpan.textContent = formatNumber(result);
-    } else {
+    } else if (typeof result === 'string') { 
       outputSpan.textContent = result;
+    } else {
+      outputSpan.textContent = String(result); 
     }
     show(resultContainer);
   } catch (error) {
-    errorContainer.textContent = error.message;
+    errorContainer.textContent = "Калькулятор не понимает вашего запроса ☹️";
     show(errorContainer);
     hide(resultContainer);
   }

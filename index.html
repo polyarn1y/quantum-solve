@@ -103,6 +103,41 @@
             </div>
         </div>
     </div>
+    <a href="help.html" class="help-button">?</a>
     <script type="module" src="assets/js/index.js"></script>
+
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <header class="header">
+                <a> 
+                    <h1 class="header__title" style="font-size: 34px;">Справочная информация</h1>
+                </a>
+            </header>
+            <main>                
+                <h3>Основные функции:</h3>
+                <ul style="list-style-type: none;">
+                    <li style="margin-left: 5px;">- Ввод математических выражений с помощью клавиатуры или виртуальных кнопок.</li>
+                    <li style="margin-left: 5px;">- Поддержка стандартных математических операций, тригонометрических функций, степеней, корней, комплексных чисел.</li>
+                </ul>
+
+                <h3>Математический ввод:</h3>
+                <p>Для ввода математических выражений используйте кнопки на панели математического ввода или при помощи клавиатуры.</p>
+                <ul style="list-style-type: none;">
+                    <li style="margin-left: 5px;">- Для ввода дроби введите выражение вида a/b.</li>
+                    <li style="margin-left: 5px;">- Для ввода корня введите выражение вида sqrt(a).</li>
+                    <li style="margin-left: 5px;">- Для ввода степени введите выражение вида a^b.</li>
+                    <li style="margin-left: 5px;">- Для ввода тригонометрических функций введите выражение вида sin(a), cos(a), tan(a), sec(a), csc(a), cot(a).</li>
+                </ul>
+                <p>Также поддерживаются комплексные числа.</p>
+                <ul style="list-style-type: none;">
+                    <li style="margin-left: 5px;">- Для ввода комплексного числа введите выражение вида a+bi, a-bi, a+bi/x+yi.</li>
+                    <li style="margin-left: 5px;">- Мнимая единица обозначается как 'i'. Например: 3i, 2+5i.</li>
+                    <li style="margin-left: 5px;">- Поддерживаются основные операции с комплексными числами: сложение, вычитание, умножение, деление.</li>
+                    <li style="margin-left: 5px;">- Пример: (2+3i) + (1-i) или (1+i)*(1-i).</li>
+                </ul>
+            </main>
+        </div>
+    </div>
 </body>
 </html>

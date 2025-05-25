@@ -3,6 +3,30 @@
 @import url('variables.css');
 @import url('math.css');
 
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #18181B; /* Цвет фона как у toolbar__button */
+    color: var(--primary-text-color);
+    width: 40px; /* Уменьшил размер для соответствия */
+    height: 40px; /* Уменьшил размер для соответствия */
+    border-radius: 9px; /* Скругление как у toolbar__button */
+    text-align: center;
+    line-height: 40px; /* Выровнял по центру для нового размера */
+    font-size: 20px; /* Уменьшил размер шрифта */
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    border: 1px solid #27272A; /* Рамка как у toolbar__button */
+    transition: background-color 0.3s, border-color 0.3s; /* Плавный переход */
+}
+
+.help-button:hover {
+    background-color: #27272A; /* Цвет фона при наведении как у toolbar__button */
+    border-color: #3F3F46; /* Цвет рамки при наведении как у toolbar__button */
+}
+
 * {
   font-family: var(--main-font);
 }
@@ -347,4 +371,90 @@ body {
     font-size: 13px;
     width: 100%;
   }
+}
+
+/* Стили для модального окна */
+.modal {
+  position: fixed; 
+  z-index: 2000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.6); 
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; 
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background-color: var(--bg-color);
+  margin: 10% auto; 
+  padding: 20px;
+  border: 1px solid #27272A;
+  border-radius: 9px;
+  width: 80%; 
+  max-width: 700px;
+  color: var(--primary-text-color);
+  position: relative;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal.active .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-content .header{
+  margin-bottom: 20px;
+}
+
+.modal-content main p, .modal-content main ul li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.modal-content main h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--primary-text-color);
+}
+
+.close-button {
+  color: var(--muted-text-color);
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: var(--primary-text-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header__title {
+  font-size: 34px;
+}
+
+.modal-list {
+  list-style-type: none;
+  padding-left: 0; /* Убираем стандартный отступ у списка */
+}
+
+.modal-list-item {
+  margin-left: 5px;
 }
