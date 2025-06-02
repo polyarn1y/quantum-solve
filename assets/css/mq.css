@@ -1,0 +1,80 @@
+.main__input_mq.mq-focused {
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 2px solid #fff;
+    border-radius: 7px;
+}
+
+.main__input_mq {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    padding: 8px 12px;
+    border-radius: 7px;
+    width: 100%;
+    font-size: clamp(13px, 2vw, 18px);
+    background-color: #09090B;
+    color: var(--primary-text-color);
+    outline: none;
+    transition: border 0.3s;
+    overflow: hidden;
+    caret-color: auto !important;
+    min-height: 56px;
+}
+  
+.main__input_mq:focus {
+    border: 2px solid #fff;
+}
+
+.mq-cursor {
+    border-left: 1px solid #fff !important;
+    margin-left: -1px;
+}
+
+.main__input_mq .mq-root-block,
+.main__input_mq .mq-root-block *,
+.main__input_mq span { 
+    font-family: 'Roboto', sans-serif !important; 
+    padding: 0 !important;
+}
+
+.main__input_mq .mq-binary-operator {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+
+.mq-math-mode .mq-numerator,
+.mq-math-mode .mq-denominator {
+    height: 24px;
+    min-width: 24px;
+    box-sizing: border-box;
+    font-size: clamp(13px, 2vw, 18px);
+    background-color: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    
+    position: relative;
+    box-sizing: border-box;
+    /* border-radius: 2px; */
+}
+
+.mq-math-mode .mq-denominator {
+    border-top: 1px solid var(--primary-text-color, #fff);;
+}
+
+.mq-math-mode .mq-numerator.mq-empty,
+.mq-math-mode .mq-denominator.mq-empty {
+    width: 24px;
+    border: 1px dashed #6b6b74;
+}
+
+
+

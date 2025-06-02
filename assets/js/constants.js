@@ -12,3 +12,6 @@ export const loader = document.getElementById("loader");
 export const placeholder = document.querySelector(".main__input-placeholder");
 export const mathKeys = document.querySelectorAll(".mathInput__key");
 export const additional = document.querySelector(".toolbar-additional");
+export const helpButton = document.querySelector(".help-button");
+export const modal = document.querySelector(".modal");
+export const closeButton = document.querySelector(".close-button");

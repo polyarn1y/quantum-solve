@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuantumSolve - научный калькулятор</title>
-    <link rel="stylesheet" href="assets/css/stylesheet.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap"/>
     <link rel="icon" href="favicon.ico">
     <script type="module" src="assets/js/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
+    <link rel="stylesheet" href="assets/css/mathquill.css">
+    <script type="module" src="assets/js/mq.js"></script>
+    <link rel="stylesheet" href="assets/css/stylesheet.css">
 </head>
 <body>
     <div class="container">
@@ -16,7 +20,7 @@
             <h1 class="header__title">QuantumSolve</h1>
         </header>
         <div class="main">
-            <div class="main__input" contenteditable="true"></div>
+            <div class="main__input"></div>
             <span class="main__input-placeholder active">Введите выражение, которое хотите вычислить</span>
             <button class="main__equals-button">=</button>
         </div>
@@ -56,30 +60,29 @@
               </button>
             </div>
             <div class="mathInput__container mathInput__container-trigonometric" style="display: none;">
-              <button class="mathInput__key"><img src="assets/images/buttons/pi.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/degree.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/rad.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sin.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/cos.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/tan.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sec.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/csc.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/cot.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sin_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/cos_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/tan_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sinh.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/cosh.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/tanh.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sech.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/csch.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/coth.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sinh_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/cosh_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/tanh_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/sech_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/csch_inv.svg" alt=""></button>
-              <button class="mathInput__key"><img src="assets/images/buttons/coth_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="pi"><img src="assets/images/buttons/pi.svg" alt=""></button>
+              <button class="mathInput__key" data-action="degree"><img src="assets/images/buttons/degree.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sin"><img src="assets/images/buttons/sin.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cos"><img src="assets/images/buttons/cos.svg" alt=""></button>
+              <button class="mathInput__key" data-action="tan"><img src="assets/images/buttons/tan.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sec"><img src="assets/images/buttons/sec.svg" alt=""></button>
+              <button class="mathInput__key" data-action="csc"><img src="assets/images/buttons/csc.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cot"><img src="assets/images/buttons/cot.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sin_inv"><img src="assets/images/buttons/sin_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cos_inv"><img src="assets/images/buttons/cos_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="tan_inv"><img src="assets/images/buttons/tan_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sinh"><img src="assets/images/buttons/sinh.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cosh"><img src="assets/images/buttons/cosh.svg" alt=""></button>
+              <button class="mathInput__key" data-action="tanh"><img src="assets/images/buttons/tanh.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sech"><img src="assets/images/buttons/sech.svg" alt=""></button>
+              <button class="mathInput__key" data-action="csch"><img src="assets/images/buttons/csch.svg" alt=""></button>
+              <button class="mathInput__key" data-action="coth"><img src="assets/images/buttons/coth.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sinh_inv"><img src="assets/images/buttons/sinh_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cosh_inv"><img src="assets/images/buttons/cosh_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="tanh_inv"><img src="assets/images/buttons/tanh_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sech_inv"><img src="assets/images/buttons/sech_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="csch_inv"><img src="assets/images/buttons/csch_inv.svg" alt=""></button>
+              <button class="mathInput__key" data-action="coth_inv"><img src="assets/images/buttons/coth_inv.svg" alt=""></button>
             </div>
           </div>
         <div class="keyboard">
@@ -103,41 +106,315 @@
             </div>
         </div>
     </div>
-    <a href="help.html" class="help-button">?</a>
-    <script type="module" src="assets/js/index.js"></script>
-
-    <div id="helpModal" class="modal">
+    <a href="#" class="help-button">?</a>
+    <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <header class="header">
-                <a> 
-                    <h1 class="header__title" style="font-size: 34px;">Справочная информация</h1>
-                </a>
-            </header>
-            <main>                
-                <h3>Основные функции:</h3>
-                <ul style="list-style-type: none;">
-                    <li style="margin-left: 5px;">- Ввод математических выражений с помощью клавиатуры или виртуальных кнопок.</li>
-                    <li style="margin-left: 5px;">- Поддержка стандартных математических операций, тригонометрических функций, степеней, корней, комплексных чисел.</li>
-                </ul>
+            <div class="modal-header">
+                <h2 class="modal-title">Справочная информация</h2>
+                <button class="close-button" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Информационные карточки -->
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="card-title">🧮 Мощный калькулятор</div>
+                        <div class="card-content">Поддерживает сложные вычисления, функции и константы</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-title">⚡ Быстрые результаты</div>
+                        <div class="card-content">Мгновенное выполнение математических операций</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-title">🎯 Высокая точность</div>
+                        <div class="card-content">Точные вычисления с поддержкой больших чисел</div>
+                    </div>
+                </div>
 
-                <h3>Математический ввод:</h3>
-                <p>Для ввода математических выражений используйте кнопки на панели математического ввода или при помощи клавиатуры.</p>
-                <ul style="list-style-type: none;">
-                    <li style="margin-left: 5px;">- Для ввода дроби введите выражение вида a/b.</li>
-                    <li style="margin-left: 5px;">- Для ввода корня введите выражение вида sqrt(a).</li>
-                    <li style="margin-left: 5px;">- Для ввода степени введите выражение вида a^b.</li>
-                    <li style="margin-left: 5px;">- Для ввода тригонометрических функций введите выражение вида sin(a), cos(a), tan(a), sec(a), csc(a), cot(a).</li>
-                </ul>
-                <p>Также поддерживаются комплексные числа.</p>
-                <ul style="list-style-type: none;">
-                    <li style="margin-left: 5px;">- Для ввода комплексного числа введите выражение вида a+bi, a-bi, a+bi/x+yi.</li>
-                    <li style="margin-left: 5px;">- Мнимая единица обозначается как 'i'. Например: 3i, 2+5i.</li>
-                    <li style="margin-left: 5px;">- Поддерживаются основные операции с комплексными числами: сложение, вычитание, умножение, деление.</li>
-                    <li style="margin-left: 5px;">- Пример: (2+3i) + (1-i) или (1+i)*(1-i).</li>
-                </ul>
-            </main>
+                <div class="section">
+                    <h3 class="section-title">Базовые операции</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Операция</th>
+                                    <th>Символ</th>
+                                    <th>Пример</th>
+                                    <th>Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Сложение</td>
+                                    <td><span class="operation-symbol">+</span></td>
+                                    <td><span class="example">5 + 3</span></td>
+                                    <td>8</td>
+                                </tr>
+                                <tr>
+                                    <td>Вычитание</td>
+                                    <td><span class="operation-symbol">-</span></td>
+                                    <td><span class="example">10 - 4</span></td>
+                                    <td>6</td>
+                                </tr>
+                                <tr>
+                                    <td>Умножение</td>
+                                    <td><span class="operation-symbol">*</span></td>
+                                    <td><span class="example">7 * 6</span></td>
+                                    <td>42</td>
+                                </tr>
+                                <tr>
+                                    <td>Деление</td>
+                                    <td><span class="operation-symbol">/</span></td>
+                                    <td><span class="example">15 / 3</span></td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <td>Возведение в степень</td>
+                                    <td><span class="operation-symbol">^</span></td>
+                                    <td><span class="example">2 ^ 3</span></td>
+                                    <td>8</td>
+                                </tr>
+                                <tr>
+                                    <td>Остаток от деления</td>
+                                    <td><span class="operation-symbol">%</span></td>
+                                    <td><span class="example">17 % 5</span></td>
+                                    <td>2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Математические функции</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Функция</th>
+                                    <th>Описание</th>
+                                    <th>Пример</th>
+                                    <th>Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="function-name">sqrt()</span></td>
+                                    <td>Квадратный корень</td>
+                                    <td><span class="example">sqrt(16)</span></td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">abs()</span></td>
+                                    <td>Модуль числа</td>
+                                    <td><span class="example">abs(-5)</span></td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">round()</span></td>
+                                    <td>Округление</td>
+                                    <td><span class="example">round(3.7)</span></td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">floor()</span></td>
+                                    <td>Округление вниз</td>
+                                    <td><span class="example">floor(3.9)</span></td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">ceil()</span></td>
+                                    <td>Округление вверх</td>
+                                    <td><span class="example">ceil(3.1)</span></td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">max()</span></td>
+                                    <td>Максимальное значение</td>
+                                    <td><span class="example">max(5, 8, 3)</span></td>
+                                    <td>8</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Тригонометрические функции</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Функция</th>
+                                    <th>Описание</th>
+                                    <th>Пример (в радианах)</th>
+                                    <th>Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="function-name">sin()</span></td>
+                                    <td>Синус</td>
+                                    <td><span class="example">sin(π/2)</span></td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">cos()</span></td>
+                                    <td>Косинус</td>
+                                    <td><span class="example">cos(0)</span></td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">tan()</span></td>
+                                    <td>Тангенс</td>
+                                    <td><span class="example">tan(π/4)</span></td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">asin()</span></td>
+                                    <td>Арксинус</td>
+                                    <td><span class="example">asin(1)</span></td>
+                                    <td>π/2</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">acos()</span></td>
+                                    <td>Арккосинус</td>
+                                    <td><span class="example">acos(0)</span></td>
+                                    <td>π/2</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">atan()</span></td>
+                                    <td>Арктангенс</td>
+                                    <td><span class="example">atan(1)</span></td>
+                                    <td>π/4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">Комплексные числа</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Операция</th>
+                                    <th>Символ</th>
+                                    <th>Пример</th>
+                                    <th>Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="function-name">i</span></td>
+                                    <td>Мнимая единица</td>
+                                    <td><span class="example">i</span></td>
+                                    <td>i</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">re()</span></td>
+                                    <td>Действительная часть</td>
+                                    <td><span class="example">re(2 + 3i)</span></td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">im()</span></td>
+                                    <td>Мнимая часть</td>
+                                    <td><span class="example">im(2 + 3i)</span></td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">conj()</span></td>
+                                    <td>Сопряжение</td>
+                                    <td><span class="example">conj(2 + 3i)</span></td>
+                                    <td>2 - 3i</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">norm()</span></td>
+                                    <td>Модуль</td>
+                                    <td><span class="example">norm(2 + 3i)</span></td>
+                                    <td>13</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">arg()</span></td>
+                                    <td>Аргумент</td>
+                                    <td><span class="example">arg(2 + 3i)</span></td>
+                                    <td>atan(3/2)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">Сложение</span></td>
+                                    <td><span class="operation-symbol">+</span></td>
+                                    <td><span class="example">2 + 3i + 1 - 2i</span></td>
+                                    <td>3 + i</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">Вычитание</span></td>
+                                    <td><span class="operation-symbol">-</span></td>
+                                    <td><span class="example">2 + 3i - 1 - 2i</span></td>
+                                    <td>1 + i</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">Умножение</span></td>
+                                    <td><span class="operation-symbol">*</span></td>
+                                    <td><span class="example">(2 + 3i) * (1 - 2i)</span></td>
+                                    <td>-4 - 4i</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">Деление</span></td>
+                                    <td><span class="operation-symbol">/</span></td>
+                                    <td><span class="example">(2 + 3i) / (1 - 2i)</span></td>
+                                    <td>0.4 + 1.4i</td>
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="section">
+                    <h3 class="section-title">Константы</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Константа</th>
+                                    <th>Обозначение</th>
+                                    <th>Значение</th>
+                                    <th>Описание</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="function-name">π</span></td>
+                                    <td>pi</td>
+                                    <td>3.14159...</td>
+                                    <td>Число Пи</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">e</span></td>
+                                    <td>e</td>
+                                    <td>2.71828...</td>
+                                    <td>Число Эйлера</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="function-name">φ</span></td>
+                                    <td>phi</td>
+                                    <td>1.61803...</td>
+                                    <td>Золотое сечение</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <script type="module" src="assets/js/index.js"></script>
+    <script src="assets/js/math.min.js"></script>
+
 </body>
 </html>

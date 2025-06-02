@@ -1,220 +1,197 @@
 import { querySpan, outputSpan, errorContainer, resultContainer, inputField, placeholder } from "./constants.js";
-import { Complex, evaluateComplexExpression } from "./complex.js";
-import { show, hide, formatNumber } from "./utils.js";
+import { show, hide } from "./utils.js";
+import { mathField } from "./mq.js";
 import { addGlobalEventListeners } from "./globalEventLisneters.js";
-import { parseExpression } from "./math/parseExpression.js";
-import { TrigParser } from "./math/trigParser.js";
-import { Rational, evaluateRationalExpression } from "./rational.js";
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 addGlobalEventListeners();
-inputField.focus();
-const trigParser = new TrigParser();
 
-const helpButton = document.querySelector('.help-button');
-const helpModal = document.getElementById('helpModal');
-const closeButton = document.querySelector('.close-button');
+function replaceFractions(expr) {
+  let result = '';
+  let i = 0;
 
-helpButton.addEventListener('click', (event) => {
-  event.preventDefault(); 
-  helpModal.classList.add('active');
-});
+  while (i < expr.length) {
+    if (expr.startsWith('\\frac{', i)) {
+      i += 6;
+      const numerator = extractGroup(expr, i);
+      i += numerator.length + 1;
 
-closeButton.addEventListener('click', () => {
-  helpModal.classList.remove('active');
-});
+      if (expr[i] !== '{') throw new Error('Expected { for denominator');
+      i++;
+      const denominator = extractGroup(expr, i);
+      i += denominator.length + 1;
 
-window.addEventListener('click', (event) => {
-  if (event.target == helpModal) {
-    helpModal.classList.remove('active');
-  }
-});
-
-function replaceMathFunctions(expression) {
-  let result = expression;
-  let startIndex = 0;
-
-  while (startIndex < result.length) {
-    let sqrtIndex = result.indexOf('sqrt(', startIndex);
-    let cbrtIndex = result.indexOf('cbrt(', startIndex);
-
-    let funcIndex = -1;
-    let funcName = '';
-    if (sqrtIndex !== -1 && (cbrtIndex === -1 || sqrtIndex < cbrtIndex)) {
-      funcIndex = sqrtIndex;
-      funcName = 'sqrt';
-    } else if (cbrtIndex !== -1) {
-      funcIndex = cbrtIndex;
-      funcName = 'cbrt';
+      const replacedNumerator = replaceFractions(numerator);
+      const replacedDenominator = replaceFractions(denominator);
+      result += `(${replacedNumerator})/(${replacedDenominator})`;
+    } else {
+      result += expr[i++];
     }
-
-    if (funcIndex === -1) {
-      break;
-    }
-
-    let openParens = 1;
-    let contentStart = funcIndex + funcName.length + 1;
-    let contentEnd = contentStart;
-
-    while (contentEnd < result.length && openParens > 0) {
-      if (result[contentEnd] === '(') openParens++;
-      if (result[contentEnd] === ')') openParens--;
-      contentEnd++;
-    }
-
-    if (openParens !== 0) {
-      throw new Error("Несбалансированные скобки в выражении");
-    }
-
-    let innerContent = result.substring(contentStart, contentEnd - 1);
-    let replacedInner = replaceMathFunctions(innerContent);
-    let replacement = funcName === 'sqrt' ? `Math.sqrt(${replacedInner})` : `Math.cbrt(${replacedInner})`;
-
-    result = result.substring(0, funcIndex) + replacement + result.substring(contentEnd);
-    startIndex = funcIndex + replacement.length;
   }
 
   return result;
 }
 
-function isPurelyRational(expr) {
-  if (expr.includes('i') || 
-      expr.includes('sqrt') || 
-      expr.includes('cbrt') || 
-      expr.includes('Math.') ||
-      expr.includes('sin') || expr.includes('cos') || expr.includes('tan') ||
-      expr.includes('sec') || expr.includes('csc') || expr.includes('cot') ||
-      expr.includes('π') || expr.includes('∞') ||
-      expr.includes('**')) {
-    return false;
+function replacePowers(expr) {
+  let result = '';
+  let i = 0;
+
+  while (i < expr.length) {
+    if (expr[i] === '^' && expr[i + 1] === '{') {
+      i += 2; 
+      const power = extractGroup(expr, i);
+      i += power.length + 1; 
+      const replacedPower = replacePowers(power); 
+      result += '^(' + replacedPower + ')';
+    } else {
+      result += expr[i++];
+    }
   }
-  return true; 
+
+  return result;
 }
 
-function handleLargeExponent(expression) {
-  const patternWithParens = /^\s*\(\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*\*\*\s*(\d+)\s*\)\s*$/;
-  const patternWithoutParens = /^\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*\*\*\s*(\d+)\s*$/;
+function replaceSqrt(expr) {
+  let result = '';
+  let i = 0;
 
-  let match = expression.match(patternWithParens);
-  let baseStr, exponentStr;
+  while (i < expr.length) {
+    if (expr.startsWith('\\sqrt{', i)) {
+      i += 6; 
+      const content = extractGroup(expr, i);
+      i += content.length + 1; 
 
-  if (match) {
-    baseStr = match[1];
-    exponentStr = match[2];
-  } else {
-    match = expression.match(patternWithoutParens);
-    if (match) {
-      baseStr = match[1];
-      exponentStr = match[2];
+      const replacedContent = replaceFractions(replacePowers(replaceSqrt(content))); 
+
+
+      result += `sqrt(${replacedContent})`;
+    } else if (expr.startsWith('\\sqrt[', i)) { 
+      i += 6;   
+      const degree = extractGroup(expr, i); 
+      i += degree.length + 1; 
+      
+      if (expr[i] !== '{') throw new Error('Expected { for nth root content');
+      i++; 
+      const content = extractGroup(expr, i);
+      i += content.length + 1; 
+
+      const replacedDegree = replaceFractions(replacePowers(replaceSqrt(degree)));
+      const replacedContent = replaceFractions(replacePowers(replaceSqrt(content)));
+      result += `(${replacedContent})^(1/(${replacedDegree}))`; 
+    } else {
+      result += expr[i++];
     }
   }
+  return result;
+}
 
-  if (baseStr && exponentStr) {
-    const base = parseFloat(baseStr);
-    const exponent = parseInt(exponentStr, 10);
+function extractGroup(str, startIndex) {
+  let depth = 1;
+  let i = startIndex;
+  let group = '';
 
-    if (base > 0 && exponent >= 1000) {
-      try {
-        const log10Base = Math.log10(base);
-        const totalLog = exponent * log10Base;
-
-        if (!isFinite(totalLog)) {
-            return "Переполнение при вычислении log"; // Отличимое сообщение
-        }
-
-        const expOrder = Math.floor(totalLog);
-        const mantissaLog = totalLog - expOrder;
-        let mantissa = Math.pow(10, mantissaLog);
-        mantissa = parseFloat(mantissa.toPrecision(15)); // Ограничиваем точность мантиссы
-
-        return `${mantissa}e+${expOrder}`;
-      } catch (e) {
-        return null; // Ошибка при вычислении логарифма, возврат к eval
-      }
+  while (i < str.length && depth > 0) {
+    if (str[i] === '{') {
+      depth++;
+    } else if (str[i] === '}') {
+      depth--;
+      if (depth === 0) break;
     }
+    if (depth > 0) group += str[i];
+    i++;
   }
-  return null; // Не соответствует паттерну или условиям (маленький показатель, неположительное основание)
+
+  return group;
 }
 
 export function solve() {
+  let expression;
   try {
     hide(errorContainer);
-    const hasCustomElements = inputField.querySelectorAll('.fraction, .power, .sqrt, .cbrt').length > 0;
-    let expression = hasCustomElements ? parseExpression() : inputField.textContent.trim();
-
-    const isComplex = /(?<![a-zA-Z])[i](?![a-zA-Z])/.test(expression);
-    let result;
-
-    if (isComplex) {
-      result = evaluateComplexExpression(expression.replace(/\^/g, '**'));
-    } else if (isPurelyRational(expression)) {
-      try {
-        result = evaluateRationalExpression(expression.replace(/\^/g, '**'));
-      } catch (rationalError) {
-        let evalExpression = expression
-          .replace(/π/g, 'Math.PI')
-          .replace(/∞/g, 'Infinity')
-          .replace(/\^/g, '**');
-        evalExpression = trigParser.parseExpression(evalExpression);
-        evalExpression = replaceMathFunctions(evalExpression);
-        result = eval(evalExpression);
-        if (typeof result === 'number' && (result === Infinity || result === -Infinity)) {
-          result = result === Infinity ? "∞" : "-∞";
-        } else if (typeof result === 'number' && (isNaN(result) || !isFinite(result))) {
-          throw new Error("Неверный результат после попытки рационального вычисления");
-        }
-      }
-    } else {
-      let evalExpression = expression
-        .replace(/π/g, 'Math.PI')
-        .replace(/∞/g, 'Infinity')
-        .replace(/\^/g, '**');
-
-      let largeExponentHandled = false;
-      const largeExpStr = handleLargeExponent(evalExpression);
-
-      if (largeExpStr !== null) {
-        result = largeExpStr; 
-        largeExponentHandled = true;
-      } else {
-        let exprForEval = evalExpression;
-        exprForEval = trigParser.parseExpression(exprForEval);
-        exprForEval = replaceMathFunctions(exprForEval);
-        result = eval(exprForEval);
-      }
-
-      if (!largeExponentHandled) {
-        if (typeof result === 'number') {
-          if (result === Infinity || result === -Infinity) {
-            result = result === Infinity ? "∞" : "-∞";
-          } else if (isNaN(result) || !isFinite(result)) {
-            throw new Error("Неверный числовой результат от eval");
-          }
-        } else {
-           throw new Error("Результат eval не является числом");
-        }
-      }
-    }
-
-    const queryString = hasCustomElements
-      ? parseExpression(true)
-      : inputField.textContent.trim();
-    querySpan.textContent = queryString;
-
-    if (result instanceof Complex) {
-      outputSpan.textContent = result.toString();
-    } else if (result instanceof Rational) {
-      outputSpan.textContent = result.toString();
-    } else if (typeof result === 'number') {
-      outputSpan.textContent = formatNumber(result);
-    } else if (typeof result === 'string') { 
-      outputSpan.textContent = result;
-    } else {
-      outputSpan.textContent = String(result); 
-    }
-    show(resultContainer);
-  } catch (error) {
-    errorContainer.textContent = "Калькулятор не понимает вашего запроса ☹️";
-    show(errorContainer);
     hide(resultContainer);
+    expression = mathField.latex();
+    console.log(expression);
+    expression = replaceFractions(expression);
+    expression = replacePowers(expression);
+    expression = replaceSqrt(expression);
+    
+    const replacements = [
+      { latex: "\\left(", plain: '(' },
+      { latex: "\\right)", plain: ')' },
+      { latex: "\\cdot", plain: '*' },
+      { latex: "\\sin", plain: 'sin' },
+      { latex: "\\cos", plain: 'cos' },
+      { latex: "\\tan", plain: 'tan' },
+      { latex: "\\sec", plain: 'sec' },
+      { latex: "\\csc", plain: 'csc' },
+      { latex: "\\cot", plain: 'cot' },
+      { latex: "\\sinh", plain: 'sinh' },
+      { latex: "\\cosh", plain: 'cosh' },
+      { latex: "\\tanh", plain: 'tanh' },
+      { latex: "\\operatorname{sech}", plain: 'sech' },
+      { latex: "\\operatorname{csch}", plain: 'csch' },
+      { latex: "\\operatorname{coth}", plain: 'coth' },
+      { latex: "\\log", plain: 'log' },
+      { latex: "\\ln", plain: 'ln' },
+      { latex: "\\pi", plain: 'pi' },
+      { latex: "\\%", plain: '%' },
+      { latex: "\\max", plain: 'max' },
+    ];
+
+    for (const rule of replacements) {
+      const regex = new RegExp(escapeRegExp(rule.latex), 'g');
+      expression = expression.replace(regex, rule.plain);
+    }
+
+    console.log(expression);
+
+    const incompleteFunctions = ['sin', 'cos', 'tan', 'log', 'ln', 'sqrt', 'sinh', 'cosh', 'tanh', 'sec', 'csc', 'cot', 'sinh_inv', 'cosh_inv', 'tanh_inv', 'sech_inv', 'csch_inv', 'coth_inv',
+      'sech', 'csch', 'coth'
+    ];
+    const trimmedExpression = expression.trim();
+    
+    if (incompleteFunctions.includes(trimmedExpression) || 
+        incompleteFunctions.some(func => trimmedExpression.endsWith(func) && !trimmedExpression.includes('('))) {
+      show(errorContainer);
+      outputSpan.textContent = '';
+      return;
+    }
+
+    querySpan.textContent = expression;
+
+    hide(resultContainer);
+    resultContainer.classList.remove('active');
+
+    void resultContainer.offsetHeight;
+
+    if (expression.trim() === '') {
+      show(errorContainer);
+      outputSpan.textContent = '';
+      return;
+    }
+
+    let result = math.evaluate(expression);
+    console.log("Результат вычисления:", result);
+    if (typeof result === 'number' && !Number.isInteger(result)) {
+      result = parseFloat(result.toFixed(10));
+    }
+
+    if (result && typeof result.toString === 'function') {
+        outputSpan.textContent = result.toString();
+    } else {
+        outputSpan.textContent = result;
+    }
+
+    show(resultContainer);
+    resultContainer.classList.add('active');
+
+  } catch (error) {
+    hide(resultContainer);
+    resultContainer.classList.remove('active');
+    show(errorContainer);
+    outputSpan.textContent = '';
   }
 }
