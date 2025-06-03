@@ -11,7 +11,7 @@ import {
   helpButton,
   modal,
 } from "./constants.js";
-import { solve } from "./index.js";
+import { solve, showMoreDigits, showLessDigits } from "./index.js";
 import { toggle, show, hide } from "./utils.js";
 import { removeLoader } from './loader.js';
 import { checkFractionPartFocus, checkPowerPartFocus, mathField } from "./mq.js";
@@ -79,6 +79,16 @@ export function addGlobalEventListeners() {
   
   solveButton.addEventListener('click', () => {
     solve();
+  });
+  
+  const moreDigitsButton = document.getElementById('moreDigitsButton');
+  moreDigitsButton.addEventListener('click', () => {
+    showMoreDigits();
+  });
+
+  const lessDigitsButton = document.getElementById('lessDigitsButton');
+  lessDigitsButton.addEventListener('click', () => {
+    showLessDigits();
   });
 
   mathButton.addEventListener('click', () => {

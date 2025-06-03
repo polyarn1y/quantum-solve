@@ -126,14 +126,14 @@
   background-color: #18181B;
 }
 
-.mq-math-mode .mq-non-leaf.mq-empty {
+/* .mq-math-mode .mq-non-leaf.mq-empty {
   background-color: #18181B;
   border: 1px dashed #6b6b74;
   border-radius: 2px;
   min-width: 16px;
   height: 16px; 
   line-height: 16px;
-}
+} */
 
 .mq-math-mode .mq-fraction .mq-empty {
   background-color: #18181B;
@@ -543,4 +543,8 @@
 .mq-math-mode .mq-sqrt-prefix,
 .mq-math-mode .mq-sqrt-stem {
   font-family: Symbola, "Times New Roman", serif;
+}
+
+.mq-math-mode .mq-sup .mq-cursor {
+  transform: translateX(50%);
 }

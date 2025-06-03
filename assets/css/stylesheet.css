@@ -391,6 +391,7 @@ body {
 }
 
 .result__output {
+  position: relative;
   font-size: 14px;
   font-weight: 600;
   color: #10B981;
@@ -399,6 +400,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 38px;
 }
 
 .result__output::before {
@@ -413,6 +415,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.result__buttons {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  right: 0;
 }
 
 #outputSpan {
@@ -801,3 +810,35 @@ body {
       font-size: 13px;
   }
 }
+
+.more-digits-button,
+.less-digits-button {
+  display: none;
+  color: var(--primary-text-color);
+  border: 1px solid #27272A;
+  border-radius: 2px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.more-digits-button.active,
+.less-digits-button.active {
+  display: block;
+}
+
+.more-digits-button:hover,
+.less-digits-button:hover {
+  background-color: #52525B;
+  border-color: #3F3F46;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.more-digits-button:active,
+.less-digits-button:active {
+  background-color: #71717A;
+}
+

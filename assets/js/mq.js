@@ -3,7 +3,7 @@ import { inputField } from "./constants.js";
 const MQ = MathQuill.getInterface(2);
 
 export const mathField = MQ.MathField(inputField, {
-    spaceBehavesLikeTab: true,
+    spaceBehavesLikeTab: false,
     handlers: {
         edit: function(field) {
             updatePlaceholderVisibility();
@@ -11,7 +11,7 @@ export const mathField = MQ.MathField(inputField, {
             insertCustomFractionLines();
             updateFractionLineMargins();
             checkPowerPartFocus();  
-            checkFractionPartFocus();   
+            checkFractionPartFocus(); 
         },
         select: function(field) {
             checkPowerPartFocus();
@@ -49,7 +49,6 @@ function hasRealContent(element) {
 
     return false;
 }
-
 
 export function checkPowerPartFocus() {
     const powerElements = mathField.el().querySelectorAll('.mq-sup');
