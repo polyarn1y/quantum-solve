@@ -10,7 +10,7 @@ function escapeRegExp(string) {
 addGlobalEventListeners();
 
 const trigFunctions = ['sin', 'cos', 'tan', 'sec', 'cot', 'csc'];
-const inverseTrigFunctions = ['asin', 'acos', 'atan', 'atan2', 'acot', 'acsc', 'asec'];
+const inverseTrigFunctions = ['acos', 'atan', 'atan2', 'acot', 'acsc', 'asec'];
 
 let replacements = {};
 
@@ -199,6 +199,18 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
       { latex: "\\%", plain: '%' },
       { latex: "\\max", plain: 'max' },
       { latex: "\\degree", plain: '' },
+      { latex: "\\arcsin", plain: 'asin' },
+      { latex: "\\arccos", plain: 'acos' },
+      { latex: "\\arctan", plain: 'atan' },
+      { latex: "\\acot", plain: 'acot' },
+      { latex: "\\acsc", plain: 'acsc' },
+      { latex: "\\asec", plain: 'asec' },
+      { latex: "\\arcsinh", plain: 'asinh' },
+      { latex: "\\arccosh", plain: 'acosh' },
+      { latex: "\\arctanh", plain: 'atanh' },
+      { latex: "\\arcsech", plain: 'asech' },
+      { latex: "\\arccsch", plain: 'acsch' },
+      { latex: "\\arccoth", plain: 'acoth' },
     ];
 
     for (const rule of replacements) {

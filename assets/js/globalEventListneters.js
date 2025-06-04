@@ -176,36 +176,31 @@ export function addGlobalEventListeners() {
     cos: { action: 'cos', typedText: 'cos(' },
     tan: { action: 'tan', typedText: 'tan(' },
     sec: { action: 'sec', typedText: 'sec(' },
-    csc: { action: 'csc', typedText: '\\csc(' },
-    cot: { action: 'cot', typedText: '\\cot(' },
-    sin_inv: { action: 'sin_inv', sequence: [{ type: 'typedText', value: 'sin^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
-    cos_inv: { action: 'cos_inv', sequence: [{ type: 'typedText', value: 'cos^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
-    tan_inv: { action: 'tan_inv', sequence: [{ type: 'typedText', value: 'tan^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    csc: { action: 'csc', typedText: 'csc(' },
+    cot: { action: 'cot', typedText: 'cot(' },
     sinh: { action: 'sinh', typedText: 'sinh(' },
     cosh: { action: 'cosh', typedText: 'cosh(' },
     tanh: { action: 'tanh', typedText: 'tanh(' }, 
     sech: { action: 'sech', typedText: 'sech(' },
     csch: { action: 'csch', typedText: 'csch(' },
     coth: { action: 'coth', typedText: 'coth(' },
-    sinh_inv: { action: 'sinh_inv', sequence: [{ type: 'typedText', value: 'sinh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
-    cosh_inv: { action: 'cosh_inv', sequence: [{ type: 'typedText', value: 'cosh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
-    tanh_inv: { action: 'tanh_inv', sequence: [{ type: 'typedText', value: 'tanh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    sin_inv: { action: 'sin_inv', typedText: 'arcsin(' },
+    cos_inv: { action: 'cos_inv', typedText: 'arccos(' },
+    tan_inv: { action: 'tan_inv', typedText: 'arctan(' },
+    sinh_inv: { action: 'sinh_inv', typedText: 'arcsinh(' },
+    cosh_inv: { action: 'cosh_inv', typedText: 'arccosh(' },
+    tanh_inv: { action: 'tanh_inv', typedText: 'arctanh(' },
+    sech_inv: { action: 'sech_inv', typedText: 'arcsech(' },
+    csch_inv: { action: 'csch_inv', typedText: 'arccsch(' },
+    coth_inv: { action: 'coth_inv', typedText: 'arccoth(' },
   };
 
   mathInputKeys.forEach(button => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
       const commandDetails = commandMap[action];
-
-      if (commandDetails.sequence) {
-        commandDetails.sequence.forEach(step => {
-          if (step.type === 'typedText') {
-            mathField.typedText(step.value);
-          } else if (step.type === 'keystroke') {
-            mathField.keystroke(step.value);
-          }
-        });
-      } else if (commandDetails.typedText) {
+      
+      if (commandDetails.typedText) {
         if (action === 'power') {
           mathField.typedText(commandDetails.typedText);
           mathField.keystroke('Left'); 

@@ -27,7 +27,7 @@
     background-color: #27272A; 
     border-color: #3F3F46; 
     box-shadow: 
-        0 8px 25px rgba(0,0,0,0.5);
+        0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -840,5 +840,49 @@ body {
 .more-digits-button:active,
 .less-digits-button:active {
   background-color: #71717A;
+}
+
+.mathInput__key {
+  position: relative; 
+}
+
+.mathInput__key[data-tooltip]::before,
+.mathInput__key[data-tooltip]::after {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+.mathInput__key[data-tooltip]::before { 
+  content: attr(data-tooltip);
+  bottom: calc(100% + 6px); 
+  background-color: #333;
+  color: #fff;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mathInput__key[data-tooltip]::after { 
+  content: '';
+  bottom: calc(100% + 2px); 
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;  
+  border-right: 4px solid transparent;  
+  border-top: 4px solid #333;         
+}
+
+.mathInput__key[data-tooltip]:hover::before,
+.mathInput__key[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
