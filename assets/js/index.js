@@ -9,6 +9,28 @@ function escapeRegExp(string) {
 
 addGlobalEventListeners();
 
+const trigFunctions = ['sin', 'cos', 'tan', 'sec', 'cot', 'csc'];
+const inverseTrigFunctions = ['asin', 'acos', 'atan', 'atan2', 'acot', 'acsc', 'asec'];
+
+let replacements = {};
+
+trigFunctions.forEach(name => {
+  const originalFn = math[name];
+  replacements[name] = function(x) {
+    return originalFn(x * Math.PI / 180);
+  };
+});
+
+inverseTrigFunctions.forEach(name => {
+  const originalFn = math[name];
+  replacements[name] = function(x) {
+    const result = originalFn(x);
+    return result * 180 / Math.PI;
+  };
+});
+
+math.import(replacements, {override: true});
+
 let currentExpression = '';
 let currentPrecision = 10;
 const DEFAULT_PRECISION = 10;    
@@ -19,12 +41,12 @@ const lessDigitsButton = document.getElementById('lessDigitsButton');
 
 export function showMoreDigits() {
   const newPrecision = currentPrecision + PRECISION_STEP;
-  solve(newPrecision);
+  solve(newPrecision, true);
 }
 
 export function showLessDigits() {
   const newPrecision = Math.max(DEFAULT_PRECISION, currentPrecision - PRECISION_STEP);
-  solve(newPrecision);
+  solve(newPrecision, true);
 }
 
 function replaceFractions(expr) {
@@ -135,10 +157,16 @@ function extractGroup(str, startIndex) {
   return group;
 }
 
-export function solve(precision = DEFAULT_PRECISION) {
+export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) {
   try {
+    math.config({
+      angles: 'deg'
+    });
+
+    if (!isPrecisionChange) {
+      hide(resultContainer);
+    }
     hide(errorContainer);
-    hide(resultContainer);
     if (moreDigitsButton) hide(moreDigitsButton);
     if (lessDigitsButton) hide(lessDigitsButton);
 
@@ -170,6 +198,7 @@ export function solve(precision = DEFAULT_PRECISION) {
       { latex: "\\pi", plain: 'pi' },
       { latex: "\\%", plain: '%' },
       { latex: "\\max", plain: 'max' },
+      { latex: "\\degree", plain: '' },
     ];
 
     for (const rule of replacements) {
@@ -178,7 +207,7 @@ export function solve(precision = DEFAULT_PRECISION) {
     }
 
     console.log(expression);
-
+    
     const incompleteFunctions = ['sin', 'cos', 'tan', 'log', 'ln', 'sqrt', 'sinh', 'cosh', 'tanh', 'sec', 'csc', 'cot', 'sinh_inv', 'cosh_inv', 'tanh_inv', 'sech_inv', 'csch_inv', 'coth_inv', 'sech', 'csch', 'coth'];
     const trimmedExpression = expression.trim();
 
@@ -186,22 +215,21 @@ export function solve(precision = DEFAULT_PRECISION) {
         incompleteFunctions.some(func => trimmedExpression.endsWith(func) && !trimmedExpression.includes('('))) {
       show(errorContainer);
       outputSpan.textContent = '';
-      if (moreDigitsButton) hide(moreDigitsButton);
-      if (lessDigitsButton) hide(lessDigitsButton);
+      hide(resultContainer);
       return;
     }
 
     querySpan.textContent = expression;
 
-    hide(resultContainer);
-
-    void resultContainer.offsetHeight;
+    if (!isPrecisionChange) {
+      hide(resultContainer);
+      void resultContainer.offsetHeight;
+    }
 
     if (expression.trim() === '') {
       show(errorContainer);
       outputSpan.textContent = '';
-      if (moreDigitsButton) hide(moreDigitsButton);
-      if (lessDigitsButton) hide(lessDigitsButton);
+      hide(resultContainer);
       return;
     }
 
@@ -220,7 +248,7 @@ export function solve(precision = DEFAULT_PRECISION) {
     show(resultContainer);
 
     if (typeof evaluatedResult === 'number' && isFinite(evaluatedResult) && !Number.isInteger(evaluatedResult)) {
-      outputSpan.textContent = evaluatedResult.toFixed(precision);
+      outputSpan.textContent = Number(evaluatedResult.toFixed(precision)).toString();
 
       const numericValueAtCurrentPrecision = parseFloat(evaluatedResult.toFixed(precision));
       

@@ -25,6 +25,22 @@ export const mathField = MQ.MathField(inputField, {
     
 });
 
+const mathQuillElement = mathField.el();
+if (mathQuillElement) {
+    mathQuillElement.addEventListener('keypress', function(event) {
+        if (event.key === '(') {
+            const cursor = mathQuillElement.querySelector('.mq-cursor');
+            if (cursor) {
+                const supParent = cursor.closest('.mq-sup');
+                if (supParent) {
+                    event.preventDefault();
+                    mathField.keystroke('Right');
+                }
+            }
+        }
+    });
+}
+
 function hasRealContent(element) {
     if (!element) return false;
 

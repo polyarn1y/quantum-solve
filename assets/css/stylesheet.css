@@ -816,7 +816,7 @@ body {
   display: none;
   color: var(--primary-text-color);
   border: 1px solid #27272A;
-  border-radius: 2px;
+  border-radius: 7px;
   padding: 6px 8px;
   font-size: 12px;
   font-weight: 400;

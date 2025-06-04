@@ -178,44 +178,50 @@ export function addGlobalEventListeners() {
     sec: { action: 'sec', typedText: 'sec(' },
     csc: { action: 'csc', typedText: '\\csc(' },
     cot: { action: 'cot', typedText: '\\cot(' },
-    sin_inv: { action: 'sin_inv', typedText: 'sin^{-1}(' },
-    cos_inv: { action: 'cos_inv', typedText: 'cos^{-1}(' },
-    tan_inv: { action: 'tan_inv', typedText: 'tan^{-1}(' },
+    sin_inv: { action: 'sin_inv', sequence: [{ type: 'typedText', value: 'sin^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    cos_inv: { action: 'cos_inv', sequence: [{ type: 'typedText', value: 'cos^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    tan_inv: { action: 'tan_inv', sequence: [{ type: 'typedText', value: 'tan^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
     sinh: { action: 'sinh', typedText: 'sinh(' },
     cosh: { action: 'cosh', typedText: 'cosh(' },
     tanh: { action: 'tanh', typedText: 'tanh(' }, 
     sech: { action: 'sech', typedText: 'sech(' },
     csch: { action: 'csch', typedText: 'csch(' },
     coth: { action: 'coth', typedText: 'coth(' },
-    sinh_inv: { action: 'sinh_inv', typedText: 'sinh^{-1}(' },
-    cosh_inv: { action: 'cosh_inv', typedText: 'cosh^{-1}(' },
-    tanh_inv: { action: 'tanh_inv', typedText: 'tanh^{-1}(' },
-    
-    
+    sinh_inv: { action: 'sinh_inv', sequence: [{ type: 'typedText', value: 'sinh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    cosh_inv: { action: 'cosh_inv', sequence: [{ type: 'typedText', value: 'cosh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
+    tanh_inv: { action: 'tanh_inv', sequence: [{ type: 'typedText', value: 'tanh^-1' }, { type: 'keystroke', value: 'Right' }, { type: 'typedText', value: '(' }] },
   };
 
   mathInputKeys.forEach(button => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
-      const command = commandMap[action].cmd;
-      const typedText = commandMap[action].typedText;
+      const commandDetails = commandMap[action];
 
-      if (typedText) {
+      if (commandDetails.sequence) {
+        commandDetails.sequence.forEach(step => {
+          if (step.type === 'typedText') {
+            mathField.typedText(step.value);
+          } else if (step.type === 'keystroke') {
+            mathField.keystroke(step.value);
+          }
+        });
+      } else if (commandDetails.typedText) {
         if (action === 'power') {
-          mathField.typedText(typedText);
-          mathField.keystroke('Left');
+          mathField.typedText(commandDetails.typedText);
+          mathField.keystroke('Left'); 
           mathField.keystroke('Left');
           mathField.keystroke('Left');
         } else if (action === 'cube') {
-          mathField.typedText(typedText);
+          mathField.typedText(commandDetails.typedText);
           mathField.keystroke('Right');
         } else {
-          mathField.typedText(typedText);
+          mathField.typedText(commandDetails.typedText);
         }
-      } else {
-        mathField.cmd(command);
+      } else if (commandDetails.cmd) {
+        mathField.cmd(commandDetails.cmd);
       }
       mathField.focus();
     });
-  });
+  });   
 } 
+
