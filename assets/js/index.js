@@ -14,11 +14,27 @@ const inverseTrigFunctions = ['acos', 'atan', 'atan2', 'acot', 'acsc', 'asec'];
 
 let replacements = {};
 
+function wrapTrigFunction(name, originalFn) {
+  return function(x) {
+    const degrees = x;
+    const radians = degrees * Math.PI / 180;
+    const rem180 = degrees % 180;
+
+    if ((name === 'tan' || name === 'sec') && Math.abs(rem180 - 90) < 1e-9) {
+      return Infinity;
+    }
+
+    if ((name === 'cot' || name === 'csc') && Math.abs(rem180) < 1e-9) {
+      return Infinity;
+    }
+
+    return originalFn(radians);
+  };
+}
+
 trigFunctions.forEach(name => {
   const originalFn = math[name];
-  replacements[name] = function(x) {
-    return originalFn(x * Math.PI / 180);
-  };
+  replacements[name] = wrapTrigFunction(name, originalFn);
 });
 
 inverseTrigFunctions.forEach(name => {
@@ -29,12 +45,12 @@ inverseTrigFunctions.forEach(name => {
   };
 });
 
-math.import(replacements, {override: true});
+math.import(replacements, { override: true });
 
 let currentExpression = '';
-let currentPrecision = 10;
-const DEFAULT_PRECISION = 10;    
-const PRECISION_STEP = 15;       
+const DEFAULT_PRECISION = 10;
+const PRECISION_STEP = 15;
+let currentPrecision = DEFAULT_PRECISION;
 
 const moreDigitsButton = document.getElementById('moreDigitsButton');
 const lessDigitsButton = document.getElementById('lessDigitsButton');
@@ -159,19 +175,17 @@ function extractGroup(str, startIndex) {
 
 export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) {
   try {
-    math.config({
-      angles: 'deg'
-    });
-
     if (!isPrecisionChange) {
       hide(resultContainer);
+      currentPrecision = DEFAULT_PRECISION;
+    } else {
+      currentPrecision = precision;
     }
     hide(errorContainer);
     if (moreDigitsButton) hide(moreDigitsButton);
     if (lessDigitsButton) hide(lessDigitsButton);
 
     currentExpression = mathField.latex();
-    console.log(currentExpression);
     let expression = currentExpression;
     expression = replaceFractions(expression);
     expression = replacePowers(expression);
@@ -213,25 +227,18 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
       { latex: "\\arccoth", plain: 'acoth' },
     ];
 
+    console.log(expression);
+
     for (const rule of replacements) {
       const regex = new RegExp(escapeRegExp(rule.latex), 'g');
       expression = expression.replace(regex, rule.plain);
     }
 
-    console.log(expression);
-    
-    const incompleteFunctions = ['sin', 'cos', 'tan', 'log', 'ln', 'sqrt', 'sinh', 'cosh', 'tanh', 'sec', 'csc', 'cot', 'sinh_inv', 'cosh_inv', 'tanh_inv', 'sech_inv', 'csch_inv', 'coth_inv', 'sech', 'csch', 'coth'];
-    const trimmedExpression = expression.trim();
-
-    if (incompleteFunctions.includes(trimmedExpression) || 
-        incompleteFunctions.some(func => trimmedExpression.endsWith(func) && !trimmedExpression.includes('('))) {
-      show(errorContainer);
-      outputSpan.textContent = '';
-      hide(resultContainer);
-      return;
-    }
-
+    expression = expression.replace(/\bpi\b/g, '(180)');
     querySpan.textContent = expression;
+
+    console.log(expression);
+
 
     if (!isPrecisionChange) {
       hide(resultContainer);
@@ -246,46 +253,68 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
     }
 
     let evaluatedResult = math.evaluate(expression);
-    console.log("Результат вычисления:", evaluatedResult);
+    hide(errorContainer);
+    show(resultContainer);
 
-    if (evaluatedResult === Infinity) {
-      show(resultContainer);
-      outputSpan.textContent = '∞';
+    if (evaluatedResult && typeof evaluatedResult === 'object' && 're' in evaluatedResult && 'im' in evaluatedResult) {
+      const re = evaluatedResult.re;
+      const im = evaluatedResult.im;
+
+      const formatted =
+        (re !== 0 ? re : '') +
+        (im !== 0 ? (im > 0 && re !== 0 ? ' + ' : (im < 0 ? ' - ' : '')) + (Math.abs(im) !== 1 ? Math.abs(im) : '') + 'i' : '');
+
+      outputSpan.textContent = formatted || '0';
       if (moreDigitsButton) hide(moreDigitsButton);
       if (lessDigitsButton) hide(lessDigitsButton);
       return;
     }
 
-    hide(errorContainer);
-    show(resultContainer);
-
-    if (typeof evaluatedResult === 'number' && isFinite(evaluatedResult) && !Number.isInteger(evaluatedResult)) {
-      outputSpan.textContent = Number(evaluatedResult.toFixed(precision)).toString();
-
-      const numericValueAtCurrentPrecision = parseFloat(evaluatedResult.toFixed(precision));
-      
-      if (numericValueAtCurrentPrecision !== evaluatedResult) {
-        if (moreDigitsButton) show(moreDigitsButton);
-      } else {
+    if (typeof evaluatedResult === 'number' && !Number.isInteger(evaluatedResult) && isFinite(evaluatedResult)) {
+        try {
+            const fraction = math.fraction(evaluatedResult);
+            if (fraction.d < 1000 && fraction.n !== 0 && fraction.d !== 1) { 
+                outputSpan.textContent = math.format(fraction, { fraction: 'ratio' });
+                if (moreDigitsButton) hide(moreDigitsButton);
+                if (lessDigitsButton) hide(lessDigitsButton);
+                return;
+            } else if (fraction.n === 0 && fraction.d === 1) { 
+                 outputSpan.textContent = '0';
+                 if (moreDigitsButton) hide(moreDigitsButton);
+                 if (lessDigitsButton) hide(lessDigitsButton);
+                 return;
+            }
+            outputSpan.textContent = Number(evaluatedResult.toFixed(currentPrecision)).toString();
+        } catch (e) {
+            outputSpan.textContent = Number(evaluatedResult.toFixed(currentPrecision)).toString();
+        }
+        
+        const numericValueAtCurrentPrecision = parseFloat(evaluatedResult.toFixed(currentPrecision));
+        if (numericValueAtCurrentPrecision !== evaluatedResult) {
+            if (moreDigitsButton) show(moreDigitsButton);
+        } else {
+            if (moreDigitsButton) hide(moreDigitsButton);
+        }
+        if (currentPrecision > DEFAULT_PRECISION) { 
+            if (lessDigitsButton) show(lessDigitsButton);
+        } else {
+            if (lessDigitsButton) hide(lessDigitsButton);
+        }
+    } 
+    else if (typeof evaluatedResult === 'number' && Math.abs(evaluatedResult) === Infinity) {
+        outputSpan.textContent = evaluatedResult === Infinity ? '∞' : '-∞';
         if (moreDigitsButton) hide(moreDigitsButton);
-      }
-      
-      if (precision > DEFAULT_PRECISION) { 
-          if (lessDigitsButton) show(lessDigitsButton);
-      } else {
-          if (lessDigitsButton) hide(lessDigitsButton);
-      }
-    } else {
-      if (moreDigitsButton) hide(moreDigitsButton);
-      if (lessDigitsButton) hide(lessDigitsButton);
-      if (evaluatedResult && typeof evaluatedResult.toString === 'function') {
-        outputSpan.textContent = evaluatedResult.toString();
-      } else {
-        outputSpan.textContent = String(evaluatedResult);
-      }
+        if (lessDigitsButton) hide(lessDigitsButton);
+    } 
+    else { 
+        if (evaluatedResult && typeof evaluatedResult.toString === 'function') {
+            outputSpan.textContent = evaluatedResult.toString();
+        } else {
+            outputSpan.textContent = String(evaluatedResult);
+        }
+        if (moreDigitsButton) hide(moreDigitsButton);
+        if (lessDigitsButton) hide(lessDigitsButton);
     }
-
-    currentPrecision = precision;
 
   } catch (error) {
     hide(resultContainer);

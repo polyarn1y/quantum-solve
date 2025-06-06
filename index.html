@@ -39,6 +39,9 @@
                 <button class="toolbar__button toolbar__button-additional" data-set="favourite">
                     <img src="assets/images/buttons/star.svg" alt="">
                 </button>
+                <button class="toolbar__button toolbar__button-additional" data-set="root">
+                    <img src="assets/images/buttons/root_icon.svg" alt="">
+                </button>
                 <button class="toolbar__button toolbar__button-additional" data-set="trigonometric">
                     <img src="assets/images/buttons/graph.svg" alt=""> 
                 </button>
@@ -46,18 +49,15 @@
         </div>
         <div class="mathInput">
             <div class="mathInput__container mathInput__container-favourite">
-              <button class="mathInput__key" data-action="fraction" data-tooltip="Дробь">
-                <img src="assets/images/buttons/fraction.svg" alt="">
-              </button>
-              <button class="mathInput__key" data-action="power" data-tooltip="Степень">
-                <img src="assets/images/buttons/power.svg" alt="">
-              </button>
-              <button class="mathInput__key" data-action="sqrt" data-tooltip="Квадратный корень">
-                <img src="assets/images/buttons/root.svg" alt="">
-              </button>
-              <button class="mathInput__key" data-action="cube" data-tooltip="Кубический корень">
-                <img src="assets/images/buttons/cube_root.svg" alt="">
-              </button>
+              <button class="mathInput__key" data-action="fraction" data-tooltip="Дробь"><img src="assets/images/buttons/fraction.svg" alt=""></button>
+              <button class="mathInput__key" data-action="power" data-tooltip="Степень"><img src="assets/images/buttons/power.svg" alt=""></button>
+              <button class="mathInput__key" data-action="sqrt" data-tooltip="Квадратный корень"><img src="assets/images/buttons/root.svg" alt=""></button>
+              <button class="mathInput__key" data-action="cube" data-tooltip="Кубический корень"><img src="assets/images/buttons/cube_root.svg" alt=""></button>
+            </div>
+            <div class="mathInput__container mathInput__container-root">
+                <button class="mathInput__key" data-action="fraction" data-tooltip="Дробь"><img src="assets/images/buttons/fraction.svg" alt=""></button>
+                <button class="mathInput__key" data-action="square" data-tooltip="Квадрат"><img src="assets/images/buttons/square.svg" alt=""></button>
+                <button class="mathInput__key" data-action="power" data-tooltip="Степень"><img src="assets/images/buttons/power.svg" alt=""></button>
             </div>
             <div class="mathInput__container mathInput__container-trigonometric" style="display: none;">
               <button class="mathInput__key" data-action="pi" data-tooltip="Число Пи"><img src="assets/images/buttons/pi.svg" alt=""></button>
@@ -120,7 +120,6 @@
             </div>
             
             <div class="modal-body">
-                <!-- Информационные карточки -->
                 <div class="info-cards">
                     <div class="info-card">
                         <div class="card-title">🧮 Мощный калькулятор</div>
@@ -279,19 +278,19 @@
                                     <td><span class="function-name">asin()</span></td>
                                     <td>Арксинус</td>
                                     <td><span class="example">asin(1)</span></td>
-                                    <td>π/2</td>
+                                    <td>90°</td>
                                 </tr>
                                 <tr>
                                     <td><span class="function-name">acos()</span></td>
                                     <td>Арккосинус</td>
                                     <td><span class="example">acos(0)</span></td>
-                                    <td>π/2</td>
+                                    <td>90°</td>
                                 </tr>
                                 <tr>
                                     <td><span class="function-name">atan()</span></td>
                                     <td>Арктангенс</td>
                                     <td><span class="example">atan(1)</span></td>
-                                    <td>π/4</td>
+                                    <td>45°</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -364,7 +363,7 @@
                                     <td><span class="function-name">Умножение</span></td>
                                     <td><span class="operation-symbol">*</span></td>
                                     <td><span class="example">(2 + 3i) * (1 - 2i)</span></td>
-                                    <td>-4 - 4i</td>
+                                    <td>8-i</td>
                                 </tr>
                                 <tr>
                                     <td><span class="function-name">Деление</span></td>
@@ -378,8 +377,6 @@
                         </table>
                     </div>
                 </div>
-
-
                 <div class="section">
                     <h3 class="section-title">Константы</h3>
                     <div class="table-container">

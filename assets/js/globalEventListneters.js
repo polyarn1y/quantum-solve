@@ -19,6 +19,7 @@ import { checkFractionPartFocus, checkPowerPartFocus, mathField } from "./mq.js"
 
 const containers = {
   favourite: document.querySelector('.mathInput__container-favourite'),
+  root: document.querySelector('.mathInput__container-root'),
   trigonometric: document.querySelector('.mathInput__container-trigonometric')
 };
 
@@ -169,6 +170,7 @@ export function addGlobalEventListeners() {
     fraction: { action: 'fraction', cmd: '\\frac' },
     sqrt: { action: 'sqrt', cmd: '\\sqrt' },
     power: { action: 'power', typedText: '^' },
+    square: { action: 'square', typedText: '^2' },
     cube: { action: 'cube', typedText: '\\nthroot3' },
     pi: { action: 'pi', cmd: '\\pi' },
     degree: { action: 'degree', cmd: '\\degree' },
@@ -201,7 +203,7 @@ export function addGlobalEventListeners() {
       const commandDetails = commandMap[action];
       
       if (commandDetails.typedText) {
-        if (action === 'power') {
+        if (action === 'power' || action === 'square') {
           mathField.typedText(commandDetails.typedText);
           mathField.keystroke('Left'); 
           mathField.keystroke('Left');
