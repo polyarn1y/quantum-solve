@@ -225,6 +225,9 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
       { latex: "\\arcsech", plain: 'asech' },
       { latex: "\\arccsch", plain: 'acsch' },
       { latex: "\\arccoth", plain: 'acoth' },
+      { latex: "\\infty", plain: 'Infinity' },
+      { latex: "-\\infty", plain: '-Infinity' },
+      { latex: "\\e", plain: 'e' },
     ];
 
     console.log(expression);

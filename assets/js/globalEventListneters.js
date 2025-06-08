@@ -195,14 +195,28 @@ export function addGlobalEventListeners() {
     sech_inv: { action: 'sech_inv', typedText: 'arcsech(' },
     csch_inv: { action: 'csch_inv', typedText: 'arccsch(' },
     coth_inv: { action: 'coth_inv', typedText: 'arccoth(' },
+    nth: { action: 'nth', typedText: '\\nthroot(' },
+    infinity: { action: 'infinity', cmd: '\\infty' },
+    negative_infinity: { action: 'negative_infinity', cmd: '\\infty' },
+    e: { action: 'e', typedText: 'e' },
+    e_power: { action: 'e_power', typedText: 'e^' },
+    natural_log: { action: 'natural_log', typedText: 'ln(' },
+    log: { action: 'log' },
+    common_log: { action: 'common_log', typedText: 'log_{10}(' },
   };
 
   mathInputKeys.forEach(button => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
       const commandDetails = commandMap[action];
-      
-      if (commandDetails.typedText) {
+      if (action === 'negative_infinity') {
+        mathField.typedText('-');
+      }
+      if (action === 'common_log') {
+        mathField.typedText('log_(');
+        mathField.keystroke('Left');
+
+      } else if (commandDetails.typedText) {
         if (action === 'power' || action === 'square') {
           mathField.typedText(commandDetails.typedText);
           mathField.keystroke('Left'); 
