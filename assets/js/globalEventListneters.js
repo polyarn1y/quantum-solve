@@ -128,6 +128,25 @@ export function addGlobalEventListeners() {
     }
   });
 
+  const keyboardKeys = document.querySelectorAll('.keyboard__key');
+  keyboardKeys.forEach(button => {
+      button.addEventListener('click', () => {
+          const cmd = button.dataset.cmd;
+          const text = button.dataset.text;
+          if (cmd) {
+              if (cmd === '\\sqrt') {
+                mathField.cmd(cmd);
+                mathField.focus();
+                return;
+              }
+              mathField.cmd(cmd);
+          } else if (text) {
+              mathField.typedText(text);
+          }
+          mathField.focus();
+      });
+  });
+  
   keyboardButton.addEventListener('click', () => {
     toggle(keyboardContainer);
     if (!mathContainer.classList.contains('hide')) {

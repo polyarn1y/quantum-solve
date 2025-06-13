@@ -262,7 +262,8 @@ body {
   background-color: #3F3F46;
   height: 44px;
   color: #fff;
-  font-size: 20px;
+  font-size: 16px;
+  font-weight: 600;
   width: 44px;
   border-radius: 9px;
   transition: all 0.2s ease;
@@ -847,7 +848,9 @@ body {
 }
 
 .mathInput__key[data-tooltip]::before,
-.mathInput__key[data-tooltip]::after {
+.mathInput__key[data-tooltip]::after,
+.keyboard__key[data-tooltip]::before,
+.keyboard__key[data-tooltip]::after {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -858,7 +861,8 @@ body {
   z-index: 1000;
 }
 
-.mathInput__key[data-tooltip]::before { 
+.mathInput__key[data-tooltip]::before,
+.keyboard__key[data-tooltip]::before { 
   content: attr(data-tooltip);
   bottom: calc(100% + 6px); 
   background-color: #333;
@@ -870,7 +874,8 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.mathInput__key[data-tooltip]::after { 
+.mathInput__key[data-tooltip]::after,
+.keyboard__key[data-tooltip]::after { 
   content: '';
   bottom: calc(100% + 2px); 
   width: 0;
@@ -881,7 +886,9 @@ body {
 }
 
 .mathInput__key[data-tooltip]:hover::before,
-.mathInput__key[data-tooltip]:hover::after {
+.mathInput__key[data-tooltip]:hover::after,
+.keyboard__key[data-tooltip]:hover::before,
+.keyboard__key[data-tooltip]:hover::after {
   opacity: 1;
   visibility: visible;
 }
