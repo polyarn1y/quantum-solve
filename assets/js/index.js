@@ -230,8 +230,6 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
       { latex: "\\e", plain: 'e' },
     ];
 
-    console.log(expression);
-
     for (const rule of replacements) {
       const regex = new RegExp(escapeRegExp(rule.latex), 'g');
       expression = expression.replace(regex, rule.plain);
@@ -239,8 +237,6 @@ export function solve(precision = DEFAULT_PRECISION, isPrecisionChange = false) 
 
     expression = expression.replace(/\bpi\b/g, '(180)');
     querySpan.textContent = expression;
-
-    console.log(expression);
 
 
     if (!isPrecisionChange) {

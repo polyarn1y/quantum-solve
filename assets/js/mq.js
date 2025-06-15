@@ -87,7 +87,6 @@ export function checkFractionPartFocus() {
     const denominators = mathField.el().querySelectorAll('.mq-denominator');
 
     numerators.forEach(numerator => {
-        console.log('numerator');
         numerator.classList.toggle('mq-fraction-part-focus', !hasRealContent(numerator));
     });
 

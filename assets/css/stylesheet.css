@@ -539,10 +539,10 @@ body {
     padding: 110px 33px;
   }
   .header__logo {
-    width: 55px;
+    width: 45px;
   }
   .header__title {
-    font-size: 55px;
+    font-size: 45px;
   }
   .material-symbols-outlined {
     font-size: 18px !important;
@@ -551,10 +551,17 @@ body {
     font-size: 15px;
     padding: 9px 15px;
   }
+  .toolbar-buttons__wrapper {
+    flex-direction: column;
+    width: 100%;
+  }
   .toolbar__button {
     white-space: nowrap;
     font-size: 13px;
     width: 100%;
+  }
+  .mathInput__container, .keyboard-container {
+    justify-content: center;
   }
 }
 
@@ -891,5 +898,21 @@ body {
 .keyboard__key[data-tooltip]:hover::after {
   opacity: 1;
   visibility: visible;
+}
+
+.main__button {
+  font-size: 15px;
+  padding: 9px 15px;
+}
+
+.toolbar {
+  flex-direction: column;
+  gap: 11px;
+  align-items: center;
+}
+
+.toolbar-buttons__wrapper {
+  flex-direction: column;
+  width: 100%;
 }
 
