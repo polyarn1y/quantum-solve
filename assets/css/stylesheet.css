@@ -551,9 +551,14 @@ body {
     font-size: 15px;
     padding: 9px 15px;
   }
+  .toolbar {
+    flex-direction: column;
+    gap: 11px;
+  }
   .toolbar-buttons__wrapper {
     flex-direction: column;
     width: 100%;
+    gap: 11px;
   }
   .toolbar__button {
     white-space: nowrap;
@@ -705,7 +710,7 @@ body {
   background-color: #09090B;
   border: 1px solid #27272A;
   border-radius: 9px;
-  overflow: hidden;
+  overflow-x: auto;
   margin-bottom: 24px;
   box-shadow: 
       0 4px 15px rgba(0, 0, 0, 0.3),
@@ -773,6 +778,7 @@ body {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 
@@ -903,16 +909,5 @@ body {
 .main__button {
   font-size: 15px;
   padding: 9px 15px;
-}
-
-.toolbar {
-  flex-direction: column;
-  gap: 11px;
-  align-items: center;
-}
-
-.toolbar-buttons__wrapper {
-  flex-direction: column;
-  width: 100%;
 }
 
